@@ -1,0 +1,13 @@
+data:
+  dataset_name: "olistbr/brazilian-ecommerce"
+paths:
+  raw_data: "data/raw/"
+  processed_data: "data/processed/"
+
+bigquery:
+  project_id: "your-project-id"
+  dataset_staging: "olist_staging"
+  dataset_dw: "olist_dw"
+
+api:
+  exchange_rate_url: "https://api.exchangerate.host/latest?base=BRL&symbols=USD"
