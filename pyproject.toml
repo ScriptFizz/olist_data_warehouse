@@ -1,0 +1,36 @@
+[project]
+name = "olist-data-warehouse"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "ScriptFizz",email = "nsimamail@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas (>=2.3.3,<3.0.0)",
+    "numpy (>=2.3.5,<3.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "requests (>=2.32.5,<3.0.0)",
+    "google-cloud-bigquery (>=3.38.0,<4.0.0)",
+    "python-dateutil (>=2.9.0.post0,<3.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "faker (>=38.2.0,<39.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "olist_data_warehouse", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "black (>=25.12.0,<26.0.0)",
+    "isort (>=7.0.0,<8.0.0)",
+    "flake8 (>=7.3.0,<8.0.0)",
+    "mypy (>=1.19.0,<2.0.0)",
+    "pytest (>=9.0.2,<10.0.0)",
+    "pre-commit (>=4.5.0,<5.0.0)"
+]

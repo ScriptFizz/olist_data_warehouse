@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environment / virtualenv
+.env
+poetry.lock
+
+# Data files
+data/raw/
+data/processed/
+
+# Logs
+logs/
