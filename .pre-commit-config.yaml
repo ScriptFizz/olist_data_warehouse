@@ -1,0 +1,44 @@
+repos:
+  # -----------------------
+  # Code Formatting: Black
+  # -----------------------
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        language_version: python3.12
+
+  # -----------------------
+  # Ruff: Linting + Imports
+  # -----------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # -----------------------
+  # Static type checking
+  # -----------------------
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-PyYAML
+          - pandas-stubs
+          - boto3-stubs[s3]
+        language_version: python3.12
+
+  # -----------------------
+  # Misc Git hygiene
+  # -----------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files

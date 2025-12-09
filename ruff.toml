@@ -1,0 +1,17 @@
+line-length = 88
+indent-width = 4
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "B", "I", "UP", "SIM", "ARG"]
+ignore = [
+    "E501", # Line length — Black handles this
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[lint.isort]
+combine-as-imports = true

@@ -14,3 +14,8 @@ data/processed/
 
 # Logs
 logs/
+
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/

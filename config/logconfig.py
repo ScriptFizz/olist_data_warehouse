@@ -1,12 +1,11 @@
 import logging
 import logging.config
-from pathlib import Path
 import sys
+from pathlib import Path
 
-
-PROJ_ROOT = PAth(__file__).resolve().parents[1]
+PROJ_ROOT = Path(__file__).resolve().parents[1]
 LOGS_DIR = PROJ_ROOT / "logs"
-LOGS_DIR.mkdir(parents = True, exist_ok = True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 logging_config = {
     "version": 1,
