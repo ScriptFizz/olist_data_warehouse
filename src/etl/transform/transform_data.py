@@ -4,6 +4,8 @@ from typing import Annotated, Any
 import numpy as np
 import pandas as pd
 import typer
+
+from config.logconfig import logger
 from src.etl.transform.processed_schemas import (
     CustomersProcessedSchema,
     GeolocationProcessedSchema,
@@ -14,8 +16,6 @@ from src.etl.transform.processed_schemas import (
     SellersProcessedSchema,
     TranslationProcessedSchema,
 )
-
-from config.logconfig import logger
 from src.etl.transform.raw_schemas import (
     CustomersSchema,
     GeolocationSchema,
@@ -160,7 +160,7 @@ def transform_orders(orders: pd.DataFrame) -> pd.DataFrame:
     )
 
     orders_transformed = orders_transformed.rename(
-        {
+        columns={
             "order_purchase_timestamp": "purchase_ts",
             "order_approved_at": "approval_ts",
             "order_delivered_carrier_date": "delivery_carrier_ts",
@@ -198,7 +198,7 @@ def transform_products(products: pd.DataFrame) -> pd.DataFrame:
             "product_id": "product_id",
             "product_category_name": "name",
             "product_name_lenght": "name_length",
-            "product_description_lenght": "description_lenght",
+            "product_description_lenght": "description_length",
             "photos_qty": "photos_qty",
             "product_weight_g": "weight_g",
             "product_length_cm": "length_cm",
@@ -388,3 +388,7 @@ def run(
     )
 
     logger.info(f"Processed data saved in {processed_data_dir}!")
+
+
+if __name__ == "__main__":
+    run()

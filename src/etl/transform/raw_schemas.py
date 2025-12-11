@@ -19,7 +19,7 @@ def validate(df: pd.DataFrame, schema: pa.SchemaModel) -> None:
 
     try:
         return schema.validate(df)
-    except pa.SchemaError as e:
+    except pa.errors.SchemaError as e:
         logger.error(e)
         raise
 

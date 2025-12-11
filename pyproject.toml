@@ -1,42 +1,36 @@
-[project]
+[tool.poetry]
 name = "olist-data-warehouse"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "ScriptFizz",email = "nsimamail@gmail.com"}
-]
+authors = ["ScriptFizz <nsimamail@gmail.com>"]
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "pandas (>=2.3.3,<3.0.0)",
-    "numpy (>=2.3.5,<3.0.0)",
-    "pyyaml (>=6.0.3,<7.0.0)",
-    "requests (>=2.32.5,<3.0.0)",
-    "google-cloud-bigquery (>=3.38.0,<4.0.0)",
-    "python-dateutil (>=2.9.0.post0,<3.0.0)",
-    "tqdm (>=4.67.1,<5.0.0)",
-    "faker (>=38.2.0,<39.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)",
-    "typer (>=0.20.0,<0.21.0)",
-    "kaggle (>=1.8.2,<2.0.0)",
-    "notebook (>=7.5.0,<8.0.0)",
-    "ipykernel (>=7.1.0,<8.0.0)",
-    "pandera (>=0.27.0,<0.28.0)"
-]
+packages = [{ include = "olist_data_warehouse", from = "src" }]
 
-[tool.poetry]
-packages = [{include = "olist_data_warehouse", from = "src"}]
+[tool.poetry.dependencies]
+python = ">=3.11,<3.12"
+pandas = ">=2.3.3,<3.0.0"
+numpy = ">=1.24.4,<2.0.0"
+pyyaml = ">=6.0.3,<7.0.0"
+requests = ">=2.32.5,<3.0.0"
+google-cloud-bigquery = ">=3.38.0,<4.0.0"
+python-dateutil = ">=2.9.0.post0,<3.0.0"
+tqdm = ">=4.67.1,<5.0.0"
+faker = ">=38.2.0,<39.0.0"
+dotenv = ">=0.9.9,<0.10.0"
+typer = ">=0.20.0,<0.21.0"
+kaggle = ">=1.8.2,<2.0.0"
+notebook = ">=7.5.0,<8.0.0"
+ipykernel = ">=7.1.0,<8.0.0"
+pandera = "==0.18.3"
+
+[tool.poetry.group.dev.dependencies]
+black = ">=25.12.0,<26.0.0"
+mypy = ">=1.19.0,<2.0.0"
+pytest = ">=9.0.2,<10.0.0"
+pre-commit = ">=4.5.0,<5.0.0"
+ruff = ">=0.14.8,<0.15.0"
+types-requests = ">=2.32.4.20250913,<3.0.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[dependency-groups]
-dev = [
-    "black (>=25.12.0,<26.0.0)",
-    "mypy (>=1.19.0,<2.0.0)",
-    "pytest (>=9.0.2,<10.0.0)",
-    "pre-commit (>=4.5.0,<5.0.0)",
-    "ruff (>=0.14.8,<0.15.0)",
-    "types-requests (>=2.32.4.20250913,<3.0.0.0)"
-]
