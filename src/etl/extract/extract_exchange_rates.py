@@ -4,9 +4,9 @@ from typing import Annotated
 
 import requests
 import typer
-from utils.utils_methods import load_params
 
 from config.logconfig import logger
+from src.etl.utils.utils_methods import load_params
 
 app = typer.Typer(help="ETL: extract API data.")
 
@@ -31,7 +31,7 @@ def extract_exchange_rate(
     params = load_params()
 
     url = url or params["api"]["exchange_rate_url"]
-    out_dir = out_dir or params["path"]["raw_data_dir"]
+    out_dir = out_dir or params["paths"]["raw_data_dir"]
 
     logger.info(f"Calling exchange rate API: {url}.")
     response = requests.get(url)

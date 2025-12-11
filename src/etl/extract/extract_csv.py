@@ -6,9 +6,9 @@ from typing import Annotated
 
 import typer
 from dotenv import load_dotenv
-from utils.utils_methods import load_params
 
 from config.logconfig import logger
+from src.etl.utils.utils_methods import load_params
 
 app = typer.Typer(help="ETL: extract dataset from Kaggle")
 
@@ -111,8 +111,8 @@ def run(
 
     configure_kaggle_cli(username=kaggle_username, key=kaggle_key)
 
-    out_dir = out_dir or params["path"]["raw_data_dir"]
-    dataset_name = dataset_name or params["dataset_name"]
+    out_dir = out_dir or params["paths"]["raw_data_dir"]
+    dataset_name = dataset_name or params["data"]["dataset_name"]
 
     typer.echo(f"Extracting data files from {dataset_name} to {out_dir}")
     ingest_data(out_dir=out_dir, dataset_name=dataset_name)

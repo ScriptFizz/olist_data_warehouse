@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import yaml
 
 
@@ -13,3 +16,18 @@ def load_params(path: str = "config/settings.yaml"):
     """
     with open(path) as f:
         return yaml.safe_load(f)
+
+
+def load_dict(path: Path) -> dict:
+    """
+    Load a JSON file into a Dict.
+
+    Args:
+            path (str): filepath of the JSON file to load.
+
+    Returns:
+            (Dict): dictionary the JSON file is loaded into.
+    """
+    with open(path) as fp:
+        d = json.load(fp)
+    return d

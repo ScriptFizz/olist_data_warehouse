@@ -3,7 +3,7 @@ repos:
   # Code Formatting: Black
   # -----------------------
   - repo: https://github.com/psf/black
-    rev: 24.3.0
+    rev: 25.12.0
     hooks:
       - id: black
         language_version: python3.12
@@ -12,7 +12,7 @@ repos:
   # Ruff: Linting + Imports
   # -----------------------
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.0
+    rev: v0.14.8
     hooks:
       - id: ruff
         args: [--fix]
@@ -22,7 +22,7 @@ repos:
   # Static type checking
   # -----------------------
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.1
+    rev: v1.19.0
     hooks:
       - id: mypy
         additional_dependencies:
