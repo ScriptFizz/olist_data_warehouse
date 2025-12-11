@@ -4,8 +4,29 @@ from typing import Annotated, Any
 import numpy as np
 import pandas as pd
 import typer
+from src.etl.transform.processed_schemas import (
+    CustomersProcessedSchema,
+    GeolocationProcessedSchema,
+    OrderItemsProcessedSchema,
+    OrdersProcessedSchema,
+    PaymentsProcessedSchema,
+    ProductsProcessedSchema,
+    SellersProcessedSchema,
+    TranslationProcessedSchema,
+)
 
 from config.logconfig import logger
+from src.etl.transform.raw_schemas import (
+    CustomersSchema,
+    GeolocationSchema,
+    OrderItemsSchema,
+    OrdersSchema,
+    PaymentsSchema,
+    ProductsSchema,
+    SellersSchema,
+    TranslationSchema,
+    validate,
+)
 from src.etl.utils.utils_methods import load_dict, load_params
 
 app = typer.Typer()
@@ -69,6 +90,7 @@ def transform_customers(customers: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed customer data.
     """
 
+    validate(df=customers, schema=CustomersSchema)
     customers_transformed = customers.rename(
         columns={
             "customer_id": "customer_id",
@@ -78,6 +100,7 @@ def transform_customers(customers: pd.DataFrame) -> pd.DataFrame:
             "customer_state": "state",
         }
     )
+    validate(df=customers_transformed, schema=CustomersProcessedSchema)
     return customers_transformed
 
 
@@ -95,12 +118,14 @@ def transform_order_items(
                     pd.DataFrame: pandas DataFrame of the transformed order items data.
     """
 
+    validate(df=order_items, schema=OrderItemsSchema)
     rate = exchange_rate["rates"]["USD"]
     order_items_transformed = order_items.copy(deep=True)
     order_items_transformed["shipping_limit_date"] = pd.to_datetime(
         order_items["shipping_limit_date"]
     )
     order_items_transformed["price"] = order_items["price"] * rate
+    validate(df=order_items_transformed, schema=OrderItemsProcessedSchema)
     return order_items_transformed
 
 
@@ -115,6 +140,7 @@ def transform_orders(orders: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed orders data.
     """
 
+    validate(df=orders, schema=OrdersSchema)
     orders_transformed = orders.copy(deep=True)
 
     orders_transformed["order_purchase_timestamp"] = pd.to_datetime(
@@ -142,7 +168,7 @@ def transform_orders(orders: pd.DataFrame) -> pd.DataFrame:
             "order_estimated_delivery_date": "estimated_delivery_ts",
         }
     )
-
+    validate(df=orders_transformed, schema=OrdersProcessedSchema)
     return orders_transformed
 
 
@@ -157,6 +183,7 @@ def transform_products(products: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed products data.
     """
 
+    validate(df=products, schema=ProductsSchema)
     products_transformed = products.copy(deep=True)
     for cname in products_transformed.select_dtypes(include=["float"]):
         col = products_transformed[cname].dropna()
@@ -165,6 +192,21 @@ def transform_products(products: pd.DataFrame) -> pd.DataFrame:
                 "Int64"
             )
             products_transformed[cname] = col_transformed  # type: ignore[call-overload]
+
+    products_transformed = products_transformed.rename(
+        {
+            "product_id": "product_id",
+            "product_category_name": "name",
+            "product_name_lenght": "name_length",
+            "product_description_lenght": "description_lenght",
+            "photos_qty": "photos_qty",
+            "product_weight_g": "weight_g",
+            "product_length_cm": "length_cm",
+            "product_height_cm": "height_cm",
+            "product_width_cm": "width_cm",
+        }
+    )
+    validate(df=products_transformed, schema=ProductsProcessedSchema)
     return products_transformed
 
 
@@ -179,6 +221,7 @@ def transform_sellers(sellers: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed sellers data.
     """
 
+    validate(df=sellers, schema=SellersSchema)
     sellers_transformed = sellers.rename(
         columns={
             "seller_id": "seller_id",
@@ -187,6 +230,7 @@ def transform_sellers(sellers: pd.DataFrame) -> pd.DataFrame:
             "seller_state": "state",
         }
     )
+    validate(df=sellers_transformed, schema=SellersProcessedSchema)
     return sellers_transformed
 
 
@@ -201,6 +245,7 @@ def transform_geolocation(geolocation: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed geolocation data.
     """
 
+    validate(df=geolocation, schema=GeolocationSchema)
     geolocation_transformed = geolocation.rename(
         columns={
             "geolocation_lat": "lat",
@@ -210,6 +255,7 @@ def transform_geolocation(geolocation: pd.DataFrame) -> pd.DataFrame:
             "geolocation_state": "state",
         }
     )
+    validate(df=geolocation_transformed, schema=GeolocationProcessedSchema)
     return geolocation_transformed
 
 
@@ -224,6 +270,7 @@ def transform_payments(payments: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed payments data.
     """
 
+    validate(df=payments, schema=PaymentsSchema)
     payments_transformed = payments.rename(
         columns={
             "order_id": "order_id",
@@ -233,6 +280,7 @@ def transform_payments(payments: pd.DataFrame) -> pd.DataFrame:
             "payment_value": "value",
         }
     )
+    validate(df=payments_transformed, schema=PaymentsProcessedSchema)
     return payments_transformed
 
 
@@ -247,12 +295,14 @@ def transform_translation(translation: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed translation data.
     """
 
+    validate(df=translation, schema=TranslationSchema)
     translation_transformed = translation.rename(
         columns={
             "product_category_name": "name_brz",
             "product_category_name_english": "name_eng",
         }
     )
+    validate(df=translation_transformed, schema=TranslationProcessedSchema)
     return translation_transformed
 
 
