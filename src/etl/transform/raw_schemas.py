@@ -77,13 +77,13 @@ class PaymentsSchema(pa.SchemaModel):
 class ProductsSchema(pa.SchemaModel):
     product_id: Series[str]
     product_category_name: Series[str] = pa.Field(nullable=True)
-    product_name_lenght: Series[int] = pa.Field(nullable=True)
-    product_description_lenght: Series[int] = pa.Field(nullable=True)
-    product_photos_qty: Series[int] = pa.Field(nullable=True)
-    product_weight_g: Series[int] = pa.Field(nullable=True)
-    product_length_cm: Series[int] = pa.Field(nullable=True)
-    product_height_cm: Series[int] = pa.Field(nullable=True)
-    product_width_cm: Series[int] = pa.Field(nullable=True)
+    product_name_lenght: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    product_description_lenght: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    product_photos_qty: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    product_weight_g: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    product_length_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    product_height_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    product_width_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
 
     class Config:
         coerce = True

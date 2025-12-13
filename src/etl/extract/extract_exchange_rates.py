@@ -1,23 +1,29 @@
-import json
-from pathlib import Path
-from typing import Annotated
+import logging
+from typing import Annotated, TypedDict
 
 import requests
 import typer
 
-from config.logconfig import logger
-from src.etl.utils.utils_methods import load_params
-
-app = typer.Typer(help="ETL: extract API data.")
+logger = logging.getLogger(__name__)
 
 
-@app.command()
-def extract_exchange_rate(
-    url: Annotated[str | None, typer.Option(help="url to extract data from")] = None,
-    out_dir: Annotated[
-        str | None, typer.Option(help="location to store the extracted data")
-    ] = None,
-) -> None:
+class ExchangeRateResponse(TypedDict):
+    result: str
+    provider: str
+    documentation: str
+    terms_of_use: str
+    time_last_update_unix: int
+    time_last_update_utc: str
+    time_next_update_unix: int
+    time_next_update_utc: str
+    time_eol_unix: int
+    base_code: str
+    rates: dict[str, float]
+
+
+def extract_exchange_json(
+    url: Annotated[str, typer.Option(help="url to extract data from")],
+) -> ExchangeRateResponse:
     """
     Extract exchange rates data.
 
@@ -26,23 +32,21 @@ def extract_exchange_rate(
             out_dir: location to store the extracted data.
 
     Returns:
-            None:
+            (ExchangeRateResponse): exchange rates data in JSON format.
     """
-    params = load_params()
 
-    url = url or params["api"]["exchange_rate_url"]
-    out_dir = out_dir or params["paths"]["raw_data_dir"]
+    logger.info(f"Calling exchange rate API: {url}...")
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        logger.error("HTTP request failed.")
+        raise RuntimeError("Failed to fetch exchange rates") from e
 
-    logger.info(f"Calling exchange rate API: {url}.")
-    response = requests.get(url)
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as e:
+        logger.error("Invalid JSON response")
+        raise RuntimeError("Response is not valid JSON") from e
 
-    out_filepath = Path(out_dir) / "exchange_rate.json"
-    with open(out_filepath, "w") as f:
-        json.dump(data, f)
-
-    logger.info("Saved API data.")
-
-
-if __name__ == "__main__":
-    extract_exchange_rate()
+    return data

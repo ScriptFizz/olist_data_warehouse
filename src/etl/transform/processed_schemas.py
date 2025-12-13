@@ -1,3 +1,4 @@
+import pandas as pd
 import pandera as pa
 from pandera.typing import Series
 
@@ -55,20 +56,20 @@ class PaymentsProcessedSchema(pa.SchemaModel):
 class ProductsProcessedSchema(pa.SchemaModel):
     product_id: Series[str]
     name: Series[str] = pa.Field(nullable=True)
-    name_length: Series[int] = pa.Field(nullable=True)
-    description_length: Series[int] = pa.Field(nullable=True)
-    photos_qty: Series[int] = pa.Field(nullable=True)
-    weight_g: Series[int] = pa.Field(nullable=True)
-    length_cm: Series[int] = pa.Field(nullable=True)
-    height_cm: Series[int] = pa.Field(nullable=True)
-    width_cm: Series[int] = pa.Field(nullable=True)
+    name_length: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    description_length: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    photos_qty: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    weight_g: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    length_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    height_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    width_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
 
     class Config:
         coerce = True
 
 
 class GeolocationProcessedSchema(pa.SchemaModel):
-    zipcode_prefix: Series[str]
+    zipcode: Series[str]
     lat: Series[float] = pa.Field(nullable=True)
     lng: Series[float] = pa.Field(nullable=True)
     city: Series[str]
@@ -80,7 +81,7 @@ class GeolocationProcessedSchema(pa.SchemaModel):
 
 class SellersProcessedSchema(pa.SchemaModel):
     seller_id: Series[str]
-    zip_code_prefix: Series[str]
+    zipcode: Series[str]
     city: Series[str]
     state: Series[str]
 

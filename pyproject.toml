@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["ScriptFizz <nsimamail@gmail.com>"]
 readme = "README.md"
-packages = [{ include = "olist_data_warehouse", from = "src" }]
+packages = [{ include = "*", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"

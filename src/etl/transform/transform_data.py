@@ -1,12 +1,11 @@
+import logging
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import typer
 
-from config.logconfig import logger
-from src.etl.transform.processed_schemas import (
+from etl.transform.processed_schemas import (
     CustomersProcessedSchema,
     GeolocationProcessedSchema,
     OrderItemsProcessedSchema,
@@ -16,7 +15,7 @@ from src.etl.transform.processed_schemas import (
     SellersProcessedSchema,
     TranslationProcessedSchema,
 )
-from src.etl.transform.raw_schemas import (
+from etl.transform.raw_schemas import (
     CustomersSchema,
     GeolocationSchema,
     OrderItemsSchema,
@@ -27,33 +26,30 @@ from src.etl.transform.raw_schemas import (
     TranslationSchema,
     validate,
 )
-from src.etl.utils.utils_methods import load_dict, load_params
 
-app = typer.Typer()
+logger = logging.getLogger(__name__)
+# def load_raw_csv(name: str, raw_dir: str) -> pd.DataFrame:
+# """
+# Load raw data from csv file and return a Pandas dataframe.
 
+# Args:
+# name (str): name of the file to load data from.
+# raw_dir (str): name of the directory the raw data is stored.
 
-def load_raw_csv(name: str, raw_dir: str) -> pd.DataFrame:
-    """
-    Load raw data from csv file and return a Pandas dataframe.
+# Returns:
+# pd.DataFrame: pandas dataframe with the file data.
+# """
 
-    Args:
-                    name (str): name of the file to load data from.
-                    raw_dir (str): name of the directory the raw data is stored.
-
-    Returns:
-                    pd.DataFrame: pandas dataframe with the file data.
-    """
-
-    path = Path(raw_dir) / name
-    try:
-        df = pd.read_csv(path)
-    except FileNotFoundError:
-        logger.error(f"Missing file: {path}")
-        raise
-    except pd.errors.ParserError:
-        logger.error(f"CSV parsing error in file: {path}")
-        raise
-    return df
+# path = Path(raw_dir) / name
+# try:
+# df = pd.read_csv(path)
+# except FileNotFoundError:
+# logger.error(f"Missing file: {path}")
+# raise
+# except pd.errors.ParserError:
+# logger.error(f"CSV parsing error in file: {path}")
+# raise
+# return df
 
 
 def save_processed(df: pd.DataFrame, name: str, processed_dir: str) -> None:
@@ -194,12 +190,12 @@ def transform_products(products: pd.DataFrame) -> pd.DataFrame:
             products_transformed[cname] = col_transformed  # type: ignore[call-overload]
 
     products_transformed = products_transformed.rename(
-        {
+        columns={
             "product_id": "product_id",
             "product_category_name": "name",
             "product_name_lenght": "name_length",
             "product_description_lenght": "description_length",
-            "photos_qty": "photos_qty",
+            "product_photos_qty": "photos_qty",
             "product_weight_g": "weight_g",
             "product_length_cm": "length_cm",
             "product_height_cm": "height_cm",
@@ -304,91 +300,3 @@ def transform_translation(translation: pd.DataFrame) -> pd.DataFrame:
     )
     validate(df=translation_transformed, schema=TranslationProcessedSchema)
     return translation_transformed
-
-
-@app.command()
-def run(
-    raw_data_dir: Annotated[
-        str | None, typer.Option(help="location where the raw data is stored.")
-    ] = None,
-    processed_data_dir: Annotated[
-        str | None, typer.Option(help="location where processed data will be stored.")
-    ] = None,
-) -> None:
-    """
-    Process data stored in a directory and store the results in a specified directory.
-
-    Args:
-        raw_data_dir (str): location where the raw data is stored.
-        processed_data_dir (str): location where processed data will be stored.
-
-    Returns:
-        None:
-    """
-
-    params = load_params()
-
-    raw_data_dir = raw_data_dir or params["paths"]["raw_data_dir"]
-    processed_data_dir = processed_data_dir or params["paths"]["processed_data_dir"]
-    exchange_rate = load_dict(Path(raw_data_dir) / "exchange_rate.json")
-
-    logger.info("Loading data...")
-    customers = load_raw_csv(name="olist_customers_dataset.csv", raw_dir=raw_data_dir)
-    order_items = load_raw_csv(
-        name="olist_order_items_dataset.csv", raw_dir=raw_data_dir
-    )
-    orders = load_raw_csv(name="olist_orders_dataset.csv", raw_dir=raw_data_dir)
-    payments = load_raw_csv(
-        name="olist_order_payments_dataset.csv", raw_dir=raw_data_dir
-    )
-    sellers = load_raw_csv(name="olist_sellers_dataset.csv", raw_dir=raw_data_dir)
-    geolocation = load_raw_csv(
-        name="olist_geolocation_dataset.csv", raw_dir=raw_data_dir
-    )
-    translation = load_raw_csv(
-        name="product_category_name_translation.csv", raw_dir=raw_data_dir
-    )
-    products = load_raw_csv(name="olist_products_dataset.csv", raw_dir=raw_data_dir)
-
-    typer.echo("Running transformation...")
-    customers_transformed = transform_customers(customers)
-    order_items_transformed = transform_order_items(
-        order_items=order_items, exchange_rate=exchange_rate
-    )
-    orders_transformed = transform_orders(orders)
-    payments_transformed = transform_payments(payments)
-    products_transformed = transform_products(products)
-    sellers_transformed = transform_sellers(sellers)
-    geolocation_transformed = transform_geolocation(geolocation)
-    translation_transformed = transform_translation(translation)
-
-    save_processed(
-        df=customers_transformed, name="customers", processed_dir=processed_data_dir
-    )
-    save_processed(
-        df=order_items_transformed, name="order_items", processed_dir=processed_data_dir
-    )
-    save_processed(
-        df=orders_transformed, name="orders", processed_dir=processed_data_dir
-    )
-    save_processed(
-        df=products_transformed, name="products", processed_dir=processed_data_dir
-    )
-    save_processed(
-        df=payments_transformed, name="payments", processed_dir=processed_data_dir
-    )
-    save_processed(
-        df=sellers_transformed, name="sellers", processed_dir=processed_data_dir
-    )
-    save_processed(
-        df=geolocation_transformed, name="geolocation", processed_dir=processed_data_dir
-    )
-    save_processed(
-        df=translation_transformed, name="translation", processed_dir=processed_data_dir
-    )
-
-    logger.info(f"Processed data saved in {processed_data_dir}!")
-
-
-if __name__ == "__main__":
-    run()

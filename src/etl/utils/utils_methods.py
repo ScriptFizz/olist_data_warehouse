@@ -1,10 +1,15 @@
 import json
+import logging
 from pathlib import Path
 
-import yaml
+import pandas as pd
+
+from config.config_loader import ConfigLoader
+
+logger = logging.getLogger(__name__)
 
 
-def load_params(path: str = "config/settings.yaml"):
+def load_params(env: str | None = None):
     """
     Read a configuration yaml file and return its data.
 
@@ -14,8 +19,7 @@ def load_params(path: str = "config/settings.yaml"):
     Returns:
             Dict (Python object that best fits the data): configuration data in a nested structure
     """
-    with open(path) as f:
-        return yaml.safe_load(f)
+    return ConfigLoader(env=env).as_dict()
 
 
 def load_dict(path: Path) -> dict:
@@ -31,3 +35,27 @@ def load_dict(path: Path) -> dict:
     with open(path) as fp:
         d = json.load(fp)
     return d
+
+
+def load_csv(name: str, _dir: str) -> pd.DataFrame:
+    """
+    Load data from csv file and return a Pandas dataframe.
+
+    Args:
+                    name (str): name of the file to load data from.
+                    raw_dir (str): name of the directory the data is stored.
+
+    Returns:
+                    pd.DataFrame: pandas dataframe with the file data.
+    """
+
+    path = Path(_dir) / name
+    try:
+        df = pd.read_csv(path)
+    except FileNotFoundError:
+        logger.error(f"Missing file: {path}")
+        raise
+    except pd.errors.ParserError:
+        logger.error(f"CSV parsing error in file: {path}")
+        raise
+    return df
