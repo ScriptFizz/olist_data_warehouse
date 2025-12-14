@@ -10,14 +10,15 @@ data:
     geolocation: "olist_geolocation_dataset.csv"
     translation: "product_category_name_translation.csv"
   processed:
-    customers: "customers.csv"
-    order_items: "order_items.csv"
-    orders: "orders.csv"
-    payments: "payments.csv"
-    products: "products.csv"
-    sellers: "sellers.csv"
-    geolocation: "geolocation.csv"
-    translation: "translation.csv"
+    #customers: "customers.csv"
+    #order_items: "order_items.csv"
+    #orders: "orders.csv"
+    #payments: "payments.csv"
+    #products: "products.csv"
+    #sellers: "sellers.csv"
+    #geolocation: "geolocation.csv"
+    #translation: "translation.csv"
+    reviews: "reviews.csv"
 
 paths:
   raw_data_dir: "data/raw/"

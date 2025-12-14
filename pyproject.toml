@@ -10,6 +10,7 @@ packages = [{ include = "*", from = "src" }]
 python = ">=3.11,<3.12"
 pandas = ">=2.3.3,<3.0.0"
 numpy = ">=1.24.4,<2.0.0"
+pyarrow = ">=12.0.1,<15.0.0"
 pyyaml = ">=6.0.3,<7.0.0"
 requests = ">=2.32.5,<3.0.0"
 google-cloud-bigquery = ">=3.38.0,<4.0.0"
@@ -22,6 +23,8 @@ kaggle = ">=1.8.2,<2.0.0"
 notebook = ">=7.5.0,<8.0.0"
 ipykernel = ">=7.1.0,<8.0.0"
 pandera = "==0.18.3"
+matplotlib = "^3.10.8"
+seaborn = "^0.13.2"
 
 [tool.poetry.group.dev.dependencies]
 black = ">=25.12.0,<26.0.0"

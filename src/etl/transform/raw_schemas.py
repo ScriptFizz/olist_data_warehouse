@@ -1,8 +1,10 @@
+import logging
+
 import pandas as pd
 import pandera as pa
 from pandera.typing import Series
 
-from config.logconfig import logger
+logger = logging.getLogger(__name__)
 
 
 def validate(df: pd.DataFrame, schema: pa.SchemaModel) -> None:
@@ -113,6 +115,19 @@ class SellersSchema(pa.SchemaModel):
 class TranslationSchema(pa.SchemaModel):
     product_category_name: Series[str]
     product_category_name_english: Series[str]
+
+    class Config:
+        coerce = True
+
+
+class ReviewsSchema(pa.SchemaModel):
+    review_id: Series[str]
+    order_id: Series[str]
+    review_score: Series[int]
+    review_comment_title: Series[str] = pa.Field(nullable=True)
+    review_comment_message: Series[str] = pa.Field(nullable=True)
+    review_creation_date: Series[pa.DateTime] = pa.Field(nullable=True)
+    review_answer_timestamp: Series[pa.DateTime] = pa.Field(nullable=True)
 
     class Config:
         coerce = True

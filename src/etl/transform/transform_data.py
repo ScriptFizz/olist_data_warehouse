@@ -12,6 +12,7 @@ from etl.transform.processed_schemas import (
     OrdersProcessedSchema,
     PaymentsProcessedSchema,
     ProductsProcessedSchema,
+    ReviewsProcessedSchema,
     SellersProcessedSchema,
     TranslationProcessedSchema,
 )
@@ -22,34 +23,13 @@ from etl.transform.raw_schemas import (
     OrdersSchema,
     PaymentsSchema,
     ProductsSchema,
+    ReviewsSchema,
     SellersSchema,
     TranslationSchema,
     validate,
 )
 
 logger = logging.getLogger(__name__)
-# def load_raw_csv(name: str, raw_dir: str) -> pd.DataFrame:
-# """
-# Load raw data from csv file and return a Pandas dataframe.
-
-# Args:
-# name (str): name of the file to load data from.
-# raw_dir (str): name of the directory the raw data is stored.
-
-# Returns:
-# pd.DataFrame: pandas dataframe with the file data.
-# """
-
-# path = Path(raw_dir) / name
-# try:
-# df = pd.read_csv(path)
-# except FileNotFoundError:
-# logger.error(f"Missing file: {path}")
-# raise
-# except pd.errors.ParserError:
-# logger.error(f"CSV parsing error in file: {path}")
-# raise
-# return df
 
 
 def save_processed(df: pd.DataFrame, name: str, processed_dir: str) -> None:
@@ -130,7 +110,7 @@ def transform_orders(orders: pd.DataFrame) -> pd.DataFrame:
     Transform the orders dataset.
 
     Args:
-                    order_items (pd.DataFrame): pandas DataFrame with orders data.
+                    orders (pd.DataFrame): pandas DataFrame with orders data.
 
     Returns:
                     pd.DataFrame: pandas DataFrame of the transformed orders data.
@@ -300,3 +280,36 @@ def transform_translation(translation: pd.DataFrame) -> pd.DataFrame:
     )
     validate(df=translation_transformed, schema=TranslationProcessedSchema)
     return translation_transformed
+
+
+def transform_reviews(reviews: pd.DataFrame) -> pd.DataFrame:
+    """
+    Transform the orders dataset.
+
+    Args:
+                    reviews (pd.DataFrame): pandas DataFrame with reviews data.
+
+    Returns:
+                    pd.DataFrame: pandas DataFrame of the transformed reviews data.
+    """
+
+    validate(df=reviews, schema=ReviewsSchema)
+    reviews_transformed = reviews.copy(deep=True)
+
+    reviews_transformed["review_creation_date"] = pd.to_datetime(
+        reviews["review_creation_date"]
+    )
+    reviews_transformed["review_answer_timestamp"] = pd.to_datetime(
+        reviews["review_answer_timestamp"]
+    )
+    reviews_transformed = reviews_transformed.rename(
+        columns={
+            "review_score": "score",
+            "review_comment_title": "title",
+            "review_comment_message": "message",
+            "review_creation_date": "creation_date",
+            "review_answer_timestamp": "answer_ts",
+        }
+    )
+    validate(df=reviews_transformed, schema=ReviewsProcessedSchema)
+    return reviews_transformed

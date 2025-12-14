@@ -13,6 +13,7 @@ from etl.transform.transform_data import (
     transform_orders,
     transform_payments,
     transform_products,
+    transform_reviews,
     transform_sellers,
     transform_translation,
 )
@@ -61,6 +62,7 @@ def run(
         name="product_category_name_translation.csv", _dir=raw_data_dir
     )
     products = load_csv(name="olist_products_dataset.csv", _dir=raw_data_dir)
+    reviews = load_csv(name="olist_order_reviews_dataset.csv", _dir=raw_data_dir)
 
     typer.echo("Running transformation...")
     customers_transformed = transform_customers(customers)
@@ -73,6 +75,7 @@ def run(
     sellers_transformed = transform_sellers(sellers)
     geolocation_transformed = transform_geolocation(geolocation)
     translation_transformed = transform_translation(translation)
+    reviews_transformed = transform_reviews(reviews)
 
     save_processed(
         df=customers_transformed, name="customers", processed_dir=processed_data_dir
@@ -97,6 +100,9 @@ def run(
     )
     save_processed(
         df=translation_transformed, name="translation", processed_dir=processed_data_dir
+    )
+    save_processed(
+        df=reviews_transformed, name="reviews", processed_dir=processed_data_dir
     )
 
     logger.info(f"Processed data saved in {processed_data_dir}!")

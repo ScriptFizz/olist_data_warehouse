@@ -95,3 +95,13 @@ class TranslationProcessedSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+
+
+class ReviewsProcessedSchema(pa.SchemaModel):
+    review_id: Series[str]
+    order_id: Series[str]
+    score: Series[int]
+    title: Series[str] = pa.Field(nullable=True)
+    message: Series[str] = pa.Field(nullable=True)
+    creation_date: Series[pa.DateTime] = pa.Field(nullable=True)
+    answer_ts: Series[pa.DateTime] = pa.Field(nullable=True)
