@@ -1,32 +1,17 @@
 data:
   dataset_name: "olistbr/brazilian-ecommerce"
-  raw:
-    customers: "olist_customers_dataset.csv"
-    order_items: "olist_order_items_dataset.csv"
-    orders: "olist_orders_dataset.csv"
-    payments: "olist_order_payments_dataset.csv"
-    products: "olist_products_dataset.csv"
-    sellers: "olist_sellers_dataset.csv"
-    geolocation: "olist_geolocation_dataset.csv"
-    translation: "product_category_name_translation.csv"
-  processed:
-    #customers: "customers.csv"
-    #order_items: "order_items.csv"
-    #orders: "orders.csv"
-    #payments: "payments.csv"
-    #products: "products.csv"
-    #sellers: "sellers.csv"
-    #geolocation: "geolocation.csv"
-    #translation: "translation.csv"
-    reviews: "reviews.csv"
 
 paths:
   raw_data_dir: "data/raw/"
   processed_data_dir: "data/processed/"
+  sql_dir: "src/etl/marts"
 
 bigquery:
   project_id: "olist-data-warehouse-48014"
-  dataset_id: "olist_dw"
-
+  datasets:
+    raw: "olist_dw"
+    core: "olist_core"
+    analytics: "olist_analytics"
+  sql_dir: "src/etl/marts/"
 api:
   exchange_rate_url: "https://open.er-api.com/v6/latest/BRL"

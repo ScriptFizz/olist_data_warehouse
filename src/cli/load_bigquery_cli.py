@@ -5,6 +5,7 @@ import typer
 
 from config.logconfig import setup_logging
 from etl.load.load_bigquery import load_dataset_to_bq
+from etl.registry.olist_tables import TABLES
 from etl.utils.utils_methods import load_csv, load_params
 
 setup_logging()
@@ -42,13 +43,15 @@ def run(
     project_id = project_id or params["bigquery"]["project_id"]
     dataset_id = dataset_id or params["bigquery"]["dataset_id"]
 
-    datafiles = params["data"]["processed"]
-
     typer.echo("Storing data to BigQuery dataset...")
-    for table_name, table_filename in datafiles.items():
-        df = load_csv(name=table_filename, _dir=processed_dir)
+    for table_conf in TABLES.values():
+        df = load_csv(name=table_conf.processed_filename, _dir=processed_dir)
         load_dataset_to_bq(
-            df=df, project_id=project_id, dataset_id=dataset_id, table_id=table_name
+            df=df,
+            project_id=project_id,
+            dataset_id=dataset_id,
+            table_id=table_conf.name,
+            schema_model=table_conf.processed_schema,
         )
 
     logger.info("Data upload succesful!")

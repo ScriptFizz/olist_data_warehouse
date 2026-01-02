@@ -7,7 +7,7 @@ from pandera.typing import Series
 logger = logging.getLogger(__name__)
 
 
-def validate(df: pd.DataFrame, schema: pa.SchemaModel) -> None:
+def validate(df: pd.DataFrame, schema: pa.SchemaModel) -> pd.DataFrame:
     """
     Validate a given pandas DataFrame according to the schema provided.
 
@@ -16,11 +16,11 @@ def validate(df: pd.DataFrame, schema: pa.SchemaModel) -> None:
         schema (pa.SchemaModel): pandera Schema Model that the dataframe has to obey.
 
     Returns:
-        None:
+        pd.DataFrame: Pandas DataFrame validated.
     """
 
     try:
-        return schema.validate(df)
+        return schema.validate(df, lazy=False)
     except pa.errors.SchemaError as e:
         logger.error(e)
         raise

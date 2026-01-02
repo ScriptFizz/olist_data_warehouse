@@ -105,3 +105,6 @@ class ReviewsProcessedSchema(pa.SchemaModel):
     message: Series[str] = pa.Field(nullable=True)
     creation_date: Series[pa.DateTime] = pa.Field(nullable=True)
     answer_ts: Series[pa.DateTime] = pa.Field(nullable=True)
+
+    class Config:
+        coerce = True
