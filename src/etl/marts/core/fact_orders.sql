@@ -30,7 +30,7 @@ SELECT
     END AS delivery_time,
     CASE
     WHEN o.order_status = "delivered" AND o.delivery_customer_ts IS NOT NULL
-        THEN TIMESTAMP_DIFF(o.delivery_customer_ts, o.estimated_delivery_ts, DAY) 
+        THEN TIMESTAMP_DIFF(o.delivery_customer_ts, o.estimated_delivery_ts, DAY)
         ELSE NULL
     END AS delay,
     oia.n_products,
