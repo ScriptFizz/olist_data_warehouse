@@ -1,9 +1,9 @@
 -- Daily aggregated data
 -- Grain: one row per date
 
-CREATE OR REPLACE TABLE `{{ PROJECT_ID }}.{{ BI_DATASET_ID }}.daily_kpis` 
+CREATE OR REPLACE TABLE `{{ PROJECT_ID }}.{{ BI_DATASET_ID }}.daily_kpis`
 PARTITION BY order_date
-AS 
+AS
 WITH orders_daily AS (
     SELECT
         DATE(purchase_ts) AS order_date,

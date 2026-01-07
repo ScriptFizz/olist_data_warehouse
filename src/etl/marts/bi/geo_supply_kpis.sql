@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE `{{ PROJECT_ID }}.{{ BI_DATASET_ID }}.geo_supply_kpis` 
+CREATE OR REPLACE TABLE `{{ PROJECT_ID }}.{{ BI_DATASET_ID }}.geo_supply_kpis`
 CLUSTER BY state, city
 AS
 SELECT

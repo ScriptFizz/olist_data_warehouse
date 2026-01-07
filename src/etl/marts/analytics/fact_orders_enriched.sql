@@ -19,4 +19,3 @@ JOIN `{{ PROJECT_ID }}.{{ RAW_DATASET_ID }}.customers` c ON o.customer_id = c.cu
 JOIN `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.reviews_agg` r ON o.order_id = r.order_id
 WHERE r.score IS NOT NULL;
 -- GROUP BY o.order_id;
-

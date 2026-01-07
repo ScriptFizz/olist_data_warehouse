@@ -45,11 +45,12 @@ def create_views(
         "{{ RAW_DATASET_ID }}": datasets["raw"],
         "{{ CORE_DATASET_ID }}": datasets["core"],
         "{{ ANALYTICS_DATASET_ID }}": datasets["analytics"],
+        "{{ BI_DATASET_ID }}": datasets["bi"],
     }
 
     client = bigquery.Client(project=project_id)
 
-    for layer in ["core", "analytics"]:
+    for layer in ["core", "analytics", "bi"]:
         typer.echo(f"Storing data to {layer} dataset...")
         layer_path = sql_dir / layer
 

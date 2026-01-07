@@ -40,5 +40,3 @@ JOIN `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.fact_orders` o ON oi.order_id = o.o
 JOIN `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.reviews_agg` r ON oi.order_id = r.order_id
 LEFT JOIN `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.dim_products` p ON oi.product_id = p.product_id
 GROUP by oi.product_id, p.category;
-
-
