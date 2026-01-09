@@ -10,7 +10,7 @@ WITH orders_daily AS (
         COUNT(DISTINCT order_id) AS total_orders,
         SUM(total_order_value) AS total_revenue,
         AVG(total_order_value) AS avg_order_value,
-        AVG(delivery_time) AS avg_delivery_time.
+        AVG(delivery_time) AS avg_delivery_time,
         AVG(CASE WHEN delay > 0 THEN 1 ELSE 0 END) AS pct_delayed
     FROM `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.fact_orders`
     GROUP BY order_date

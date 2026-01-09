@@ -1,4 +1,5 @@
--- products with categories in English
+-- Products with categories in English
+-- Grain: one product per row
 
 CREATE OR REPLACE VIEW `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.dim_products` AS
 SELECT

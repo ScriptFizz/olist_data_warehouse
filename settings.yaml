@@ -4,7 +4,7 @@ data:
 paths:
   raw_data_dir: "data/raw/"
   processed_data_dir: "data/processed/"
-  sql_dir: "src/etl/marts"
+  sql_dir: "sql/"
 
 bigquery:
   project_id: "olist-data-warehouse-48014"
@@ -12,6 +12,7 @@ bigquery:
     raw: "olist_dw"
     core: "olist_core"
     analytics: "olist_analytics"
-  sql_dir: "src/etl/marts/"
+    bi: "olist_bi"
+  #sql_dir: "src/etl/marts/"
 api:
   exchange_rate_url: "https://open.er-api.com/v6/latest/BRL"

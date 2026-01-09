@@ -3,6 +3,7 @@ WITH params AS (
     SELECT 180 AS inactivity_threshold_days
 )
 SELECT
+    cm.snapshot_date,
     cm.customer_unique_id,
     p.inactivity_threshold_days AS inactivity_threshold_days,
     cm.recency_days > p.inactivity_threshold_days AS is_inactive

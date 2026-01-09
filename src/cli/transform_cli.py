@@ -7,18 +7,6 @@ import typer
 from config.logconfig import setup_logging
 from etl.registry.olist_tables import TABLES
 
-# from etl.transform.transform_data import (
-# save_processed,
-# transform_customers,
-# transform_geolocation,
-# transform_order_items,
-# transform_orders,
-# transform_payments,
-# transform_products,
-# transform_reviews,
-# transform_sellers,
-# transform_translation,
-# )
 from etl.registry.tables import TransformContext
 from etl.transform.raw_schemas import validate
 from etl.transform.transform_data import save_processed

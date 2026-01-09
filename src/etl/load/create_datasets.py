@@ -15,7 +15,7 @@ app = typer.Typer()
 
 
 @app.command()
-def create_views(
+def create_datasets(
     project_id: Annotated[
         str | None, typer.Option(help="ID of the bigquery project.")
     ] = None,
@@ -38,7 +38,8 @@ def create_views(
     params = load_params()
     project_id = project_id or params["bigquery"]["project_id"]
     datasets = datasets or params["bigquery"]["datasets"]
-    sql_dir = Path(sql_dir or params["bigquery"]["sql_dir"])
+    sql_dir = Path(sql_dir or params["paths"]["sql_dir"])
+    #sql_dir = Path(sql_dir or params["bigquery"]["sql_dir"])
 
     replacements = {
         "{{ PROJECT_ID }}": project_id,
@@ -56,8 +57,15 @@ def create_views(
 
         if not layer_path.exists():
             raise FileNotFoundError(f"Missing SQL layer directory: {layer_path}")
-
-        for sql_file in sorted(layer_path.glob("*.sql")):
+        
+        has_subdirectories = any((layer_path / subdir).is_dir() for subdir in layer_path.iterdir())
+        
+        if has_subdirectories:
+            sql_files = layer_path.glob("**/*.sql")
+        else:
+            sql_files = layer_path.glob("*.sql")
+        
+        for sql_file in sorted(sql_files):
             print("SQL NAME: ", sql_file.name)
             with open(sql_file) as f:
                 query = f.read()
@@ -75,4 +83,45 @@ def create_views(
 
 
 if __name__ == "__main__":
-    create_views()
+    create_datasets()
+
+
+
+
+    # params = load_params()
+    # project_id = project_id or params["bigquery"]["project_id"]
+    # datasets = datasets or params["bigquery"]["datasets"]
+    # sql_dir = Path(sql_dir or params["bigquery"]["sql_dir"])
+
+    # replacements = {
+        # "{{ PROJECT_ID }}": project_id,
+        # "{{ RAW_DATASET_ID }}": datasets["raw"],
+        # "{{ CORE_DATASET_ID }}": datasets["core"],
+        # "{{ ANALYTICS_DATASET_ID }}": datasets["analytics"],
+        # "{{ BI_DATASET_ID }}": datasets["bi"],
+    # }
+
+    # client = bigquery.Client(project=project_id)
+
+    # for layer in ["core", "analytics", "bi"]:
+        # typer.echo(f"Storing data to {layer} dataset...")
+        # layer_path = sql_dir / layer
+
+        # if not layer_path.exists():
+            # raise FileNotFoundError(f"Missing SQL layer directory: {layer_path}")
+
+        # for sql_file in sorted(layer_path.glob("*.sql")):
+            # print("SQL NAME: ", sql_file.name)
+            # with open(sql_file) as f:
+                # query = f.read()
+
+                # for key, value in replacements.items():
+                    # query = query.replace(key, value)
+
+                # # print("QUERY: ", query)
+                # job = client.query(query)
+                # job.result()
+
+                # # print(f"Created view: {sql_file.name}")
+                # logger.info(f"Loaded {sql_file.name} successfully.")
+        # logger.info(f"{layer} dataset created successfully")
