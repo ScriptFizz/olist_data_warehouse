@@ -51,7 +51,7 @@ def create_datasets(
 
     client = bigquery.Client(project=project_id)
 
-    for layer in ["core", "analytics", "bi"]:
+    for layer in ["analytics", "bi"]:#["core", "analytics", "bi"]:
         typer.echo(f"Storing data to {layer} dataset...")
         layer_path = sql_dir / layer
 
