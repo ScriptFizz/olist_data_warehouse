@@ -13,7 +13,7 @@ SELECT
     COUNT(*) AS total_items_sold,
 
     -- Revenue
-    SUM(total_item_revenue) AS total_revenue,
+    SUM(total_item_value) AS total_revenue,
     AVG(price) AS avg_price,
     AVG(freight_value) AS avg_freight_value,
 

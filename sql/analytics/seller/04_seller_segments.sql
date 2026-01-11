@@ -10,9 +10,9 @@ WITH seller_base AS (
         sqm.avg_review_score,
         sqm.n_reviews
     FROM `{{ PROJECT_ID }}.{{ ANALYTICS_DATASET_ID }}.seller_metrics` sm
-    LEFT JOIN `{{ PROJECT_ID }}.{{ ANALYTICS_DATASET_ID }}.seller_logistics_metrics`
+    LEFT JOIN `{{ PROJECT_ID }}.{{ ANALYTICS_DATASET_ID }}.seller_logistics_metrics` slm
     ON sm.seller_id = slm.seller_id
-    LEFT JOIN `{{ PROJECT_ID }}.{{ ANALYTICS_DATASET_ID }}.seller_quality_metrics`
+    LEFT JOIN `{{ PROJECT_ID }}.{{ ANALYTICS_DATASET_ID }}.seller_quality_metrics` sqm
     ON sm.seller_id = sqm.seller_id
 )
 SELECT
@@ -42,5 +42,5 @@ SELECT
     
     'v1_rule_based_2016_01' AS segmentation_version
 
-FROM base;
+FROM seller_base;
     

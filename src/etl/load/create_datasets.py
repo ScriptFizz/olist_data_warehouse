@@ -58,7 +58,7 @@ def create_datasets(
         if not layer_path.exists():
             raise FileNotFoundError(f"Missing SQL layer directory: {layer_path}")
         
-        has_subdirectories = any((layer_path / subdir).is_dir() for subdir in layer_path.iterdir())
+        has_subdirectories = any(subdir.is_dir() for subdir in layer_path.iterdir())
         
         if has_subdirectories:
             sql_files = layer_path.glob("**/*.sql")
@@ -73,14 +73,12 @@ def create_datasets(
                 for key, value in replacements.items():
                     query = query.replace(key, value)
 
-                # print("QUERY: ", query)
                 job = client.query(query)
                 job.result()
 
                 # print(f"Created view: {sql_file.name}")
                 logger.info(f"Loaded {sql_file.name} successfully.")
         logger.info(f"{layer} dataset created successfully")
-
 
 if __name__ == "__main__":
     create_datasets()

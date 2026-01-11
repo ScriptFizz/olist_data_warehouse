@@ -2,7 +2,7 @@
 -- Grain: one row per date
 
 CREATE OR REPLACE TABLE `{{ PROJECT_ID }}.{{ BI_DATASET_ID }}.daily_kpis`
-PARTITION BY order_date
+-- PARTITION BY order_date
 AS
 WITH orders_daily AS (
     SELECT
@@ -13,6 +13,7 @@ WITH orders_daily AS (
         AVG(delivery_time) AS avg_delivery_time,
         AVG(CASE WHEN delay > 0 THEN 1 ELSE 0 END) AS pct_delayed
     FROM `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.fact_orders`
+    WHERE DATE(purchase_ts) IS NOT NULL
     GROUP BY order_date
 ),
 reviews_daily AS (
@@ -22,6 +23,7 @@ reviews_daily AS (
     FROM `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.fact_orders` o
     JOIN `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.reviews_agg` r
     ON o.order_id = r.order_id
+    WHERE DATE(o.purchase_ts) IS NOT NULL
     GROUP BY order_date
 )
 SELECT

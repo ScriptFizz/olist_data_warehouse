@@ -5,7 +5,7 @@ CREATE OR REPLACE VIEW `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.fact_products` AS
 SELECT
      oi.order_id,
      oi.product_id,
-     p.category
+     p.category,
 
      -- Economics
      oi.price,
