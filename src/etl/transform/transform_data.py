@@ -70,14 +70,12 @@ def transform_order_items(
                     pd.DataFrame: pandas DataFrame of the transformed order items data.
     """
 
-    # validate(df=order_items, schema=OrderItemsSchema)
     rate = exchange_rate["rates"]["USD"]
     order_items_transformed = order_items.copy(deep=True)
     order_items_transformed["shipping_limit_date"] = pd.to_datetime(
         order_items["shipping_limit_date"]
     )
     order_items_transformed["price"] = order_items["price"] * rate
-    # validate(df=order_items_transformed, schema=OrderItemsProcessedSchema)
     return order_items_transformed
 
 
@@ -92,7 +90,6 @@ def transform_orders(orders: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed orders data.
     """
 
-    # validate(df=orders, schema=OrdersSchema)
     orders_transformed = orders.copy(deep=True)
 
     orders_transformed["order_purchase_timestamp"] = pd.to_datetime(
@@ -120,7 +117,7 @@ def transform_orders(orders: pd.DataFrame) -> pd.DataFrame:
             "order_estimated_delivery_date": "estimated_delivery_ts",
         }
     )
-    # validate(df=orders_transformed, schema=OrdersProcessedSchema)
+
     return orders_transformed
 
 
@@ -135,7 +132,6 @@ def transform_products(products: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed products data.
     """
 
-    # validate(df=products, schema=ProductsSchema)
     products_transformed = products.copy(deep=True)
     for cname in products_transformed.select_dtypes(include=["float"]):
         col = products_transformed[cname].dropna()
@@ -158,7 +154,7 @@ def transform_products(products: pd.DataFrame) -> pd.DataFrame:
             "product_width_cm": "width_cm",
         }
     )
-    # validate(df=products_transformed, schema=ProductsProcessedSchema)
+
     return products_transformed
 
 
@@ -173,7 +169,6 @@ def transform_sellers(sellers: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed sellers data.
     """
 
-    # validate(df=sellers, schema=SellersSchema)
     sellers_transformed = sellers.rename(
         columns={
             "seller_id": "seller_id",
@@ -182,7 +177,7 @@ def transform_sellers(sellers: pd.DataFrame) -> pd.DataFrame:
             "seller_state": "state",
         }
     )
-    # validate(df=sellers_transformed, schema=SellersProcessedSchema)
+
     return sellers_transformed
 
 
@@ -197,7 +192,6 @@ def transform_geolocation(geolocation: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed geolocation data.
     """
 
-    # validate(df=geolocation, schema=GeolocationSchema)
     geolocation_transformed = geolocation.rename(
         columns={
             "geolocation_lat": "lat",
@@ -207,7 +201,7 @@ def transform_geolocation(geolocation: pd.DataFrame) -> pd.DataFrame:
             "geolocation_state": "state",
         }
     )
-    # validate(df=geolocation_transformed, schema=GeolocationProcessedSchema)
+
     return geolocation_transformed
 
 
@@ -222,7 +216,6 @@ def transform_payments(payments: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed payments data.
     """
 
-    # validate(df=payments, schema=PaymentsSchema)
     payments_transformed = payments.rename(
         columns={
             "order_id": "order_id",
@@ -232,7 +225,6 @@ def transform_payments(payments: pd.DataFrame) -> pd.DataFrame:
             "payment_value": "value",
         }
     )
-    # validate(df=payments_transformed, schema=PaymentsProcessedSchema)
     return payments_transformed
 
 
@@ -247,14 +239,13 @@ def transform_translation(translation: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed translation data.
     """
 
-    # validate(df=translation, schema=TranslationSchema)
     translation_transformed = translation.rename(
         columns={
             "product_category_name": "name_brz",
             "product_category_name_english": "name_eng",
         }
     )
-    # validate(df=translation_transformed, schema=TranslationProcessedSchema)
+
     return translation_transformed
 
 
@@ -269,7 +260,6 @@ def transform_reviews(reviews: pd.DataFrame) -> pd.DataFrame:
                     pd.DataFrame: pandas DataFrame of the transformed reviews data.
     """
 
-    # validate(df=reviews, schema=ReviewsSchema)
     reviews_transformed = reviews.copy(deep=True)
 
     reviews_transformed["review_creation_date"] = pd.to_datetime(
@@ -287,5 +277,5 @@ def transform_reviews(reviews: pd.DataFrame) -> pd.DataFrame:
             "review_answer_timestamp": "answer_ts",
         }
     )
-    # validate(df=reviews_transformed, schema=ReviewsProcessedSchema)
+
     return reviews_transformed

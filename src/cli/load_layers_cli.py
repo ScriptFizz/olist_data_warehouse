@@ -15,7 +15,7 @@ app = typer.Typer()
 
 
 @app.command()
-def create_datasets(
+def load_layers(
     project_id: Annotated[
         str | None, typer.Option(help="ID of the bigquery project.")
     ] = None,
@@ -39,7 +39,6 @@ def create_datasets(
     project_id = project_id or params["bigquery"]["project_id"]
     datasets = datasets or params["bigquery"]["datasets"]
     sql_dir = Path(sql_dir or params["paths"]["sql_dir"])
-    #sql_dir = Path(sql_dir or params["bigquery"]["sql_dir"])
 
     replacements = {
         "{{ PROJECT_ID }}": project_id,
@@ -51,7 +50,7 @@ def create_datasets(
 
     client = bigquery.Client(project=project_id)
 
-    for layer in ["analytics", "bi"]:#["core", "analytics", "bi"]:
+    for layer in ["core", "analytics", "bi"]:
         typer.echo(f"Storing data to {layer} dataset...")
         layer_path = sql_dir / layer
 
@@ -81,5 +80,5 @@ def create_datasets(
         logger.info(f"{layer} dataset created successfully")
 
 if __name__ == "__main__":
-    create_datasets()
+   load_layers()
 
