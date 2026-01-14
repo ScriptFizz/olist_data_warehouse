@@ -91,6 +91,7 @@ python -m src.cli.extract_csv_cli
 python -m src.cli.extract_rates_cli 
 python -m src.cli.transform_cli 
 python -m src.cli.load_bigquery_cli
+python -m src.cli.load_layers_cli
 ``` 
 
 ## Data Modeling 
