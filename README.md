@@ -28,7 +28,7 @@ The project follows a layered data architecture:
 2. **Processed Layer** 
   - Cleaned and standardized datasets 
   - Data quality checks enforced via Pandera schema 
-  - Stored lovally, versioned with DVC and prepared for warehouse loading 
+  - Stored locally and prepared for warehouse loading 
 
 3. **Data Warehouse (BigQuery)** 
   - **Core Layer**: Fact and dimension tables 
@@ -44,7 +44,6 @@ The project follows a layered data architecture:
 **Data Engineering** 
  - Python (pandas)
  - Pandera (data validation)
- - DVC (data versioning)
  - BigQuery (data warehouse)
  - SQL (analytics and BI modeling)
  - Typer (CLI interface)
@@ -94,12 +93,23 @@ python -m src.cli.load_bigquery_cli
 python -m src.cli.load_layers_cli
 ``` 
 
+## Data Availability 
+
+Raw and processed data files are intentionally excluded from version control. 
+
+The project is fully reproducible: 
+ - Raw data can be downloaded from [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) 
+ - Processed data is generated via the ETL pipeline 
+ - Warehouse tables are built programmatically in BigQuery 
+ 
+See `docs/engineering/etl` for details on the data ingestion process.
+
 ## Data Modeling 
 
 The BigQuery warehouse follows a layered modeling approach: 
 
  - **Raw Layer**
-   - Cleaned, validated datase from kaggle 
+   - Cleaned, validated dataset from kaggle 
 
 - **Core Layer**
   - Fact tables: orders, order items, products 
@@ -141,9 +151,3 @@ See the `docs/` directory or build the documentation locally using MKDocs.
  - Introduce orchestration (e.g. Airflow or Prefect) 
  - Add dashboarding layer (e.g. Looker Studio) 
  - Implement incremental loading strategies 
-
-## Dataset 
-
-This project uses the public Olist Brazilian Ecommerce dataset available 
-on [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) 
- 

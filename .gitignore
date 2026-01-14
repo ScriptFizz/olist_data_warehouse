@@ -9,15 +9,16 @@ __pycache__/
 poetry.lock
 
 # Data files
-data/raw/
-data/processed/
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 
 # Logs
-logs/
+logs/*
 
 # Tool caches
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
 
-notebooks/
