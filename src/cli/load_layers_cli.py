@@ -50,7 +50,7 @@ def load_layers(
 
     client = bigquery.Client(project=project_id)
 
-    for layer in ["bi"]:#["core", "analytics", "bi"]:
+    for layer in ["core", "analytics", "bi"]:
         typer.echo(f"Storing data to {layer} dataset...")
         layer_path = sql_dir / layer
 
@@ -65,7 +65,7 @@ def load_layers(
             sql_files = layer_path.glob("*.sql")
         
         for sql_file in sorted(sql_files):
-            print("SQL NAME: ", sql_file.name)
+            print("QUERY NAME: ", sql_file.name)
             with open(sql_file) as f:
                 query = f.read()
 
@@ -75,7 +75,6 @@ def load_layers(
                 job = client.query(query)
                 job.result()
 
-                # print(f"Created view: {sql_file.name}")
                 logger.info(f"Loaded {sql_file.name} successfully.")
         logger.info(f"{layer} dataset created successfully")
 
