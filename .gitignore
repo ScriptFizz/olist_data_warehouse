@@ -22,3 +22,5 @@ logs/*
 .ruff_cache/
 .pytest_cache/
 
+# metadata SQLs
+sql/metadata/
