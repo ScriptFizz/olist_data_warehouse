@@ -31,7 +31,7 @@ def load_layers(
 
     Args:
     project_id (str): ID of the bigquery project.
-    datasets (dict[str, str]): Name of the datasets to use for creating and storing views.
+    datasets (dict[str, str]): Name of the datasets to use for creating and storing tables/views.
     sql_dir (str): path pointing to the directory with sql files.
     """
 
@@ -44,13 +44,14 @@ def load_layers(
         "{{ PROJECT_ID }}": project_id,
         "{{ RAW_DATASET_ID }}": datasets["raw"],
         "{{ CORE_DATASET_ID }}": datasets["core"],
-        "{{ ANALYTICS_DATASET_ID }}": datasets["analytics"],
+        "{{ ROLLUP_DATASET_ID }}": datasets["rollup"],
+        "{{ KPI_DATASET_ID }}": datasets["kpi"],
         "{{ BI_DATASET_ID }}": datasets["bi"],
     }
 
     client = bigquery.Client(project=project_id)
 
-    for layer in ["core", "analytics", "bi"]:
+    for layer in ["core", "rollup", "kpi", "bi"]:
         typer.echo(f"Storing data to {layer} dataset...")
         layer_path = sql_dir / layer
 

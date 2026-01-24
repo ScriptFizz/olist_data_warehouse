@@ -104,25 +104,46 @@ The project is fully reproducible:
  
 See `docs/engineering/etl` for details on the data ingestion process.
 
-## Data Modeling 
+## Data Modeling
 
-The BigQuery warehouse follows a layered modeling approach: 
+The BigQuery warehouse follows a layered dimensional modeling approach, progressing
+from source-aligned ingestion to additive aggregates and semantic KPIs optimized for BI
+and analytics use cases.
 
- - **Raw Layer**
-   - Cleaned, validated dataset from kaggle 
+- **Raw Layer**
+  - Standardized ingestion tables with consistent data types and keys
+  - Preserves source-level grain and business meaning
+  - Serves as the foundation for dimensional modeling
 
 - **Core Layer**
-  - Fact tables: orders, order items, products 
-  - Dimension tables: products 
+  - **Atomic fact tables** at the lowest business grain  
+    (e.g. orders, order_items, payments, reviews)
+  - **Conformed dimensions**  
+    (customers, sellers, products, dates, geography)
+  - Designed for reuse across downstream rollups and KPIs
 
-- **Analytics Layer**
-  - Customer metrics and behavioral features 
-  - Seller performance and logistics metrics 
-  - Segmentation models 
-  
-- **BI Layer** 
-  - Pre-aggregated KPIs for reporting 
-  - Daily, geographic, product and customer-level metrics 
+- **Rollup Layer (Additive Aggregate Facts)**
+  - Aggregate fact tables containing **additive-only measures** (`sum`, `count`)
+  - Optimized for performance and reuse in KPI calculations
+  - Includes:
+    - Customer order rollups
+    - Seller performance rollups
+    - Product sales rollups
+    - Geographic demand and supply rollups
+
+- **KPI / Semantic Layer**
+  - Derived tables/views built on top of additive rollups
+  - Contains **non-additive metrics**, ratios, scores, and segmentation logic
+  - Includes:
+    - Customer RFM and behavioral KPIs
+    - Customer status and segmentation models
+    - Seller and product performance KPIs
+    - Daily business KPIs
+  - Designed as a stable semantic contract for BI and analytics consumers
+
+- **BI / Presentation Layer**
+  - Final presentation-ready views for dashboards and reporting
+  - Minimal business logic; focuses on usability and consistency 
 
 ## Analysis & Key Insights 
 
