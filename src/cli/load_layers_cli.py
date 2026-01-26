@@ -57,14 +57,14 @@ def load_layers(
 
         if not layer_path.exists():
             raise FileNotFoundError(f"Missing SQL layer directory: {layer_path}")
-        
+
         has_subdirectories = any(subdir.is_dir() for subdir in layer_path.iterdir())
-        
+
         if has_subdirectories:
             sql_files = layer_path.glob("**/*.sql")
         else:
             sql_files = layer_path.glob("*.sql")
-        
+
         for sql_file in sorted(sql_files):
             print("QUERY NAME: ", sql_file.name)
             with open(sql_file) as f:
@@ -79,6 +79,6 @@ def load_layers(
                 logger.info(f"Loaded {sql_file.name} successfully.")
         logger.info(f"{layer} dataset created successfully")
 
-if __name__ == "__main__":
-   load_layers()
 
+if __name__ == "__main__":
+    load_layers()

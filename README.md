@@ -32,7 +32,8 @@ The project follows a layered data architecture:
 
 3. **Data Warehouse (BigQuery)** 
   - **Core Layer**: Fact and dimension tables 
-  - **Analytics Layer**: Customer and seller analytical models 
+  - **Rollup Layer**: Additive aggregate facts 
+  - **KPI/Semantic Layer**: Non-additive metrics built on top of rollup
   - **BI Layer**: Aggregated KPI views for reporting and dashboards 
 
 4. **Analytics & Visualization** 
