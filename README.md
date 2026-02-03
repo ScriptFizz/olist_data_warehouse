@@ -160,8 +160,8 @@ Key insights include:
 
 See: `notebooks/Brazilian_Ecommerce_Analysis.ipynb` 
 
-A summary of the analysis with key business insights is conducted on a Looker Studio  
-report, whose static PDF copy is availabe.  
+A summary of the analysis with key business insights is conducted on a Looker Studio 
+report, whose static PDF copy is available.  
 
 See: `DA_report/Olist_Marketplace_Report.pdf`
 
