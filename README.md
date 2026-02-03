@@ -69,6 +69,7 @@ data/          # Raw and processed datasets
 src/           # ETL, validation, and CLI logic
 sql/           # Core, analytics, and BI SQL models
 notebooks/     # Exploratory and analytical notebooks
+DA_report      # PDF of Business Insights report on Looker Studio
 docs/          # Project documentation (MkDocs)
 logs/          # Application logs
 tests/         # Test scaffolding
@@ -159,6 +160,11 @@ Key insights include:
 
 See: `notebooks/Brazilian_Ecommerce_Analysis.ipynb` 
 
+A summary of the analysis with key business insights is conducted on a Looker Studio  
+report, whose static PDF copy is availabe.  
+
+See: `DA_report/Olist_Marketplace_Report.pdf`
+
 ## Documentation 
 
 Technical documentation is available via MKDocs and covers: 
@@ -171,5 +177,5 @@ See the `docs/` directory or build the documentation locally using MKDocs.
 ## Future improvements 
 
  - Introduce orchestration (e.g. Airflow or Prefect) 
- - Add dashboarding layer (e.g. Looker Studio) 
+ - link to dashboarding layer (Looker Studio) 
  - Implement incremental loading strategies 

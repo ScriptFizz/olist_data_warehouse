@@ -15,7 +15,8 @@ SELECT
     COALESCE(s.total_items_sold, 0) AS total_items_sold,
     COALESCE(d.total_revenue_demand, 0) AS total_revenue_demand,
     COALESCE(s.total_revenue_supply, 0) AS total_revenue_supply,
-    COALESCE(s.total_revenue_supply, 0) - COALESCE(d.total_revenue_demand, 0) AS revenue_supply_demand_gap
+    COALESCE(s.total_revenue_supply, 0) - COALESCE(d.total_revenue_demand, 0) AS revenue_supply_demand_gap,
+    COALESCE(d.pct_delayed, 0) AS pct_delayed
 FROM `{{ PROJECT_ID }}.{{ ROLLUP_DATASET_ID }}.rollup_geo_demand` d
 FULL OUTER JOIN `{{ PROJECT_ID }}.{{ ROLLUP_DATASET_ID }}.rollup_geo_supply` s
     ON d.state_code = s.state_code 

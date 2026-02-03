@@ -51,7 +51,7 @@ def load_layers(
 
     client = bigquery.Client(project=project_id)
 
-    for layer in ["core", "rollup", "kpi", "bi"]:
+    for layer in ["bi"]: #["core", "rollup", "kpi", "bi"]:
         typer.echo(f"Storing data to {layer} dataset...")
         layer_path = sql_dir / layer
 

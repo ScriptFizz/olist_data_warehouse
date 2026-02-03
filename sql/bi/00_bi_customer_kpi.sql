@@ -9,7 +9,8 @@ SELECT
     kc.monetary_value,
     cst.is_inactive,
     csg.monetary_segment,
-    csg.behavior_segment
+    csg.behavior_segment,
+    csg.sem_customer_segment
 
 FROM `{{ PROJECT_ID }}.{{ KPI_DATASET_ID }}.kpi_customer` kc
 JOIN `{{ PROJECT_ID }}.{{ KPI_DATASET_ID }}.sem_customer_status` cst

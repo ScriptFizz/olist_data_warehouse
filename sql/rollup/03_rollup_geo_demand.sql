@@ -24,7 +24,8 @@ SELECT
     COUNT(DISTINCT cg.customer_unique_id) AS total_unique_customers,
     COUNT(DISTINCT o.order_id) AS total_orders_placed,
     SUM(o.basket_size) AS total_items_ordered,
-    SUM(o.total_order_value) AS total_revenue_demand
+    SUM(o.total_order_value) AS total_revenue_demand,
+    SUM(CASE WHEN o.delay > 0 THEN 1 ELSE 0 END) AS total_orders_delayed
 FROM `{{ PROJECT_ID }}.{{ CORE_DATASET_ID }}.fact_orders` o
 JOIN customer_geo cg 
     ON o.customer_id = cg.customer_id
