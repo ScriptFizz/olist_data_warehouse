@@ -1,15 +1,15 @@
 import pandas as pd
+import pytest
 from pandas.testing import assert_frame_equal
-
-from olist_dw.etl.transform.transform_data import (
-    transform_customers,
-    transform_orders,
-)
-
-import pytest 
 from pandera.errors import SchemaError
 
 from olist_dw.etl.transform.raw_schemas import CustomersSchema, validate
+from olist_dw.etl.transform.transform_data import (
+    transform_customers,
+    transform_order_items,
+    transform_orders,
+)
+
 
 def test_transform_customers_renames_source_columns() -> None:
     source = pd.DataFrame(
@@ -126,3 +126,59 @@ def test_customer_schema_rejects_missing_required_column() -> None:
 
     with pytest.raises(SchemaError):
         validate(invalid, CustomersSchema)
+
+
+def test_transform_order_items_preserves_source_monetary_values() -> None:
+    source = pd.DataFrame(
+        {
+            "order_id": ["order-1"],
+            "order_item_id": [1],
+            "product_id": ["product-1"],
+            "seller_id": ["seller-1"],
+            "shipping_limit_date": ["2017-10-08 10:00:00"],
+            "price": [100.0],
+            "freight_value": [15.5],
+        }
+    )
+
+    result = transform_order_items(source)
+
+    assert result.loc[0, "price"] == 100.0
+    assert result.loc[0, "freight_value"] == 15.5
+
+
+def test_transform_order_items_converts_shipping_limit_to_timestamp() -> None:
+    source = pd.DataFrame(
+        {
+            "order_id": ["order-1"],
+            "order_item_id": [1],
+            "product_id": ["product-1"],
+            "seller_id": ["seller-1"],
+            "shipping_limit_date": ["2017-10-08 10:00:00"],
+            "price": [100.0],
+            "freight_value": [15.5],
+        }
+    )
+
+    result = transform_order_items(source)
+
+    assert pd.api.types.is_datetime64_any_dtype(result["shipping_limit_date"])
+
+
+def test_transform_order_items_does_not_mutate_source_dataframe() -> None:
+    source = pd.DataFrame(
+        {
+            "order_id": ["order-1"],
+            "order_item_id": [1],
+            "product_id": ["product-1"],
+            "seller_id": ["seller-1"],
+            "shipping_limit_date": ["2017-10-08 10:00:00"],
+            "price": [100.0],
+            "freight_value": [15.5],
+        }
+    )
+    original = source.copy(deep=True)
+
+    transform_order_items(source)
+
+    assert_frame_equal(source, original)

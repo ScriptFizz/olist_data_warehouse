@@ -57,25 +57,21 @@ def transform_customers(customers: pd.DataFrame) -> pd.DataFrame:
 
 
 def transform_order_items(
-    order_items: pd.DataFrame, exchange_rate: dict
+    order_items: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    Transform the order items dataset.
+    Normalize order-item data while preserving source monetary values in BRL.
 
     Args:
                     order_items (pd.DataFrame): pandas DataFrame with order items data.
-                    exchange_rate (Dict): structured data about currencies exchange rates.
-
-    Returns:
+    
                     pd.DataFrame: pandas DataFrame of the transformed order items data.
     """
 
-    rate = exchange_rate["rates"]["USD"]
     order_items_transformed = order_items.copy(deep=True)
     order_items_transformed["shipping_limit_date"] = pd.to_datetime(
         order_items["shipping_limit_date"]
     )
-    order_items_transformed["price"] = order_items["price"] * rate
     return order_items_transformed
 
 

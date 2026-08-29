@@ -57,7 +57,6 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=OrderItemsSchema,
         processed_schema=OrderItemsProcessedSchema,
         transform=transform_order_items,
-        kwargs_factory=lambda ctx: {"exchange_rate": ctx.exchange_rate},
     ),
     "payments": TableConfig(
         name="payments",

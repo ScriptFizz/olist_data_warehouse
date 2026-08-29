@@ -1,15 +1,13 @@
 import logging
-from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from olist_dw.config.logconfig import setup_logging
 from olist_dw.etl.registry.olist_tables import TABLES
-from olist_dw.etl.registry.tables import TransformContext
 from olist_dw.etl.transform.raw_schemas import validate
 from olist_dw.etl.transform.transform_data import save_processed
-from olist_dw.etl.utils.utils_methods import load_csv, load_dict, load_params
+from olist_dw.etl.utils.utils_methods import load_csv, load_params
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -41,8 +39,6 @@ def run(
 
     raw_data_dir = raw_data_dir or params["paths"]["raw_data_dir"]
     processed_data_dir = processed_data_dir or params["paths"]["processed_data_dir"]
-    exchange_rate = load_dict(Path(raw_data_dir) / "exchange_rate.json")
-    ctx = TransformContext(exchange_rate=exchange_rate)
 
     logger.info("Transforming data...")
     for table_conf in TABLES.values():
@@ -50,8 +46,7 @@ def run(
 
         df = validate(df=df, schema=table_conf.raw_schema)
 
-        kwargs = table_conf.kwargs_factory(ctx) if table_conf.kwargs_factory else {}
-        df_transformed = table_conf.transform(df, **kwargs)
+        df_transformed = table_conf.transform(df)
 
         df_transformed = validate(df=df_transformed, schema=table_conf.processed_schema)
 

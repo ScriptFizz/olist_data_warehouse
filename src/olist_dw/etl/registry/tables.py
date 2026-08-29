@@ -6,11 +6,6 @@ from pandera import SchemaModel
 
 
 @dataclass(frozen=True)
-class TransformContext:
-    exchange_rate: dict
-
-
-@dataclass(frozen=True)
 class TableConfig:
     name: str
 
@@ -21,4 +16,3 @@ class TableConfig:
     processed_schema: type[SchemaModel]
 
     transform: Callable[..., pd.DataFrame]
-    kwargs_factory: Callable[[TransformContext], dict] | None = None

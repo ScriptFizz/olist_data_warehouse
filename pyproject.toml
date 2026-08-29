@@ -43,7 +43,6 @@ dev = [
 
 [project.scripts]
 olist-extract = "olist_dw.cli.extract_csv_cli:app"
-olist-extract-rates = "olist_dw.cli.extract_rates_cli:app"
 olist-transform = "olist_dw.cli.transform_cli:app"
 olist-load-bigquery = "olist_dw.cli.load_bigquery_cli:app"
 olist-load-layers = "olist_dw.cli.load_layers_cli:app"
@@ -57,8 +56,8 @@ build-backend = "hatchling.build"
 packages = ["src/olist_dw"]
 
 [tool.pytest.ini_options]
-testpaths = ["test"]
-adopt = [
+testpaths = ["tests"]
+addopts = [
     "-ra",
     "--strict-markers",
 ]
