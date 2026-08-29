@@ -6,7 +6,6 @@ import typer
 
 from olist_dw.config.logconfig import setup_logging
 from olist_dw.etl.registry.olist_tables import TABLES
-
 from olist_dw.etl.registry.tables import TransformContext
 from olist_dw.etl.transform.raw_schemas import validate
 from olist_dw.etl.transform.transform_data import save_processed

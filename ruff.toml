@@ -5,7 +5,7 @@ target-version = "py311"
 [lint]
 select = ["E", "F", "B", "I", "UP", "SIM", "ARG"]
 ignore = [
-    "E501", # Line length — Black handles this
+    "E501", # Line length is handled by Ruff's formatter
 ]
 
 [format]

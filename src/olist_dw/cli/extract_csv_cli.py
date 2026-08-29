@@ -3,9 +3,9 @@ import os
 from typing import Annotated
 
 import typer
+from config.logconfig import setup_logging
 from dotenv import load_dotenv
 
-from config.logconfig import setup_logging
 from olist_dw.etl.extract.extract_csv import configure_kaggle_cli, ingest_data
 from olist_dw.etl.utils.utils_methods import load_params
 

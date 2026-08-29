@@ -55,3 +55,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/olist_dw"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+adopt = [
+    "-ra",
+    "--strict-markers",
+]

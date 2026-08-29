@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 import pandas as pd
 import pandera as pa
@@ -7,7 +8,7 @@ from pandera.typing import Series
 logger = logging.getLogger(__name__)
 
 
-def validate(df: pd.DataFrame, schema: pa.SchemaModel) -> pd.DataFrame:
+def validate(df: pd.DataFrame, schema: type[pa.SchemaModel]) -> pd.DataFrame:
     """
     Validate a given pandas DataFrame according to the schema provided.
 
@@ -20,9 +21,10 @@ def validate(df: pd.DataFrame, schema: pa.SchemaModel) -> pd.DataFrame:
     """
 
     try:
-        return schema.validate(df, lazy=False)
+        validated = schema.validate(df, lazy=False)
+        return cast(pd.DataFrame, validated)
     except pa.errors.SchemaError as e:
-        logger.error(e)
+        logger.error("Dataframe validation failed: %s", e)
         raise
 
 
@@ -79,13 +81,13 @@ class PaymentsSchema(pa.SchemaModel):
 class ProductsSchema(pa.SchemaModel):
     product_id: Series[str]
     product_category_name: Series[str] = pa.Field(nullable=True)
-    product_name_lenght: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
-    product_description_lenght: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
-    product_photos_qty: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
-    product_weight_g: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
-    product_length_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
-    product_height_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
-    product_width_cm: Series[pd.Int64Dtype()] = pa.Field(nullable=True)
+    product_name_lenght: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    product_description_lenght: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    product_photos_qty: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    product_weight_g: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    product_length_cm: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    product_height_cm: Series[pd.Int64Dtype] = pa.Field(nullable=True)
+    product_width_cm: Series[pd.Int64Dtype] = pa.Field(nullable=True)
 
     class Config:
         coerce = True

@@ -38,7 +38,7 @@ def load_layers(
     params = load_params()
     project_id = project_id or params["bigquery"]["project_id"]
     datasets = datasets or params["bigquery"]["datasets"]
-    sql_dir = Path(sql_dir or params["paths"]["sql_dir"])
+    resolved_sql_dir = Path(sql_dir or params["paths"]["sql_dir"])
 
     replacements = {
         "{{ PROJECT_ID }}": project_id,
@@ -51,9 +51,9 @@ def load_layers(
 
     client = bigquery.Client(project=project_id)
 
-    for layer in ["bi"]: #["core", "rollup", "kpi", "bi"]:
+    for layer in ["bi"]:  # ["core", "rollup", "kpi", "bi"]:
         typer.echo(f"Storing data to {layer} dataset...")
-        layer_path = sql_dir / layer
+        layer_path = resolved_sql_dir / layer
 
         if not layer_path.exists():
             raise FileNotFoundError(f"Missing SQL layer directory: {layer_path}")
