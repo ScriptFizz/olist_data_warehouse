@@ -52,16 +52,17 @@ def validate_referential_integrity(
         child = tables[relationship.child_table]
         parent = tables[relationship.parent_table]
 
-        missing_columns = [
-            f"{relationship.child_table}.{relationship.child_column}"
-            if relationship.child_column not in child.columns
-            else None,
-            f"{relationship.parent_table}.{relationship.parent_column}"
-            if relationship.parent_column not in parent.columns
-            else None,
-        ]
+        missing_columns: list[str] = []
 
-        missing_columns = [name for name in missing_columns if name is not None]
+        if relationship.child_column not in child.columns:
+            missing_columns.append(
+                f"{relationship.child_table}.{relationship.child_column}"
+            )
+
+        if relationship.parent_column not in parent.columns:
+            missing_columns.append(
+                f"{relationship.parent_table}.{relationship.parent_column}"
+            )
 
         if missing_columns:
             violations.append(
