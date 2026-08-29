@@ -1,44 +1,57 @@
-[tool.poetry]
+[project]
 name = "olist-data-warehouse"
 version = "0.1.0"
-description = ""
-authors = ["ScriptFizz <nsimamail@gmail.com>"]
+description = "Olist analytics engineering and data warehouse project"
+authors = [{ name = "ScriptFizz", email = "nsimamail@gmail.com" }]
 readme = "README.md"
-packages = [{ include = "*", from = "src" }]
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "pandas>=2.3.3,<3.0.0",
+    "numpy>=1.24.4,<2.0.0",
+    "pyarrow>=12.0.1,<15.0.0",
+    "pyyaml>=6.0.3,<7.0.0",
+    "requests>=2.32.5,<3.0.0",
+    "google-cloud-bigquery>=3.38.0,<4.0.0",
+    "python-dateutil>=2.9.0.post0,<3.0.0",
+    "tqdm>=4.67.1,<5.0.0",
+    "faker>=38.2.0,<39.0.0",
+    "python-dotenv>=1.0,<2.0",
+    "typer>=0.20.0,<0.21.0",
+    "kaggle>=1.8.2,<2.0.0",
+    "notebook>=7.5.0,<8.0.0",
+    "ipykernel>=7.1.0,<8.0.0",
+    "pandera==0.18.3",
+    "matplotlib>=3.10.8,<4.0.0",
+    "seaborn>=0.13.2,<0.14.0",
+    "db-dtypes>=1.4.0,<1.5.0",
+    "scipy>=1.16.3,<2.0.0",
+    "statsmodels>=0.14.6,<0.15.0",
+    "mkdocs>=1.6.1,<2.0.0",
+    "plotly>=6.5.1,<7.0.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.11,<3.12"
-pandas = ">=2.3.3,<3.0.0"
-numpy = ">=1.24.4,<2.0.0"
-pyarrow = ">=12.0.1,<15.0.0"
-pyyaml = ">=6.0.3,<7.0.0"
-requests = ">=2.32.5,<3.0.0"
-google-cloud-bigquery = ">=3.38.0,<4.0.0"
-python-dateutil = ">=2.9.0.post0,<3.0.0"
-tqdm = ">=4.67.1,<5.0.0"
-faker = ">=38.2.0,<39.0.0"
-dotenv = ">=0.9.9,<0.10.0"
-typer = ">=0.20.0,<0.21.0"
-kaggle = ">=1.8.2,<2.0.0"
-notebook = ">=7.5.0,<8.0.0"
-ipykernel = ">=7.1.0,<8.0.0"
-pandera = "==0.18.3"
-matplotlib = "^3.10.8"
-seaborn = "^0.13.2"
-db-dtypes = ">=1.4.0,<1.5.0"
-scipy = "^1.16.3"
-statsmodels = "^0.14.6"
-mkdocs = "^1.6.1"
-plotly = "^6.5.1"
+[dependency-groups]
+dev = [
+    "mypy>=1.19.0,<2.0.0",
+    "pytest>=9.0.2,<10.0.0",
+    "pre-commit>=4.5.0,<5.0.0",
+    "ruff>=0.14.8,<0.15.0",
+    "types-requests>=2.32.4,<3.0.0",
+    "types-pyyaml>=6.0.12,<7.0.0",
+    "pandas-stubs>=2.3.0,<3.0.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-black = ">=25.12.0,<26.0.0"
-mypy = ">=1.19.0,<2.0.0"
-pytest = ">=9.0.2,<10.0.0"
-pre-commit = ">=4.5.0,<5.0.0"
-ruff = ">=0.14.8,<0.15.0"
-types-requests = ">=2.32.4.20250913,<3.0.0.0"
+[project.scripts]
+olist-extract = "olist_dw.cli.extract_csv_cli:app"
+olist-extract-rates = "olist_dw.cli.extract_rates_cli:app"
+olist-transform = "olist_dw.cli.transform_cli:app"
+olist-load-bigquery = "olist_dw.cli.load_bigquery_cli:app"
+olist-load-layers = "olist_dw.cli.load_layers_cli:app"
+
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/olist_dw"]

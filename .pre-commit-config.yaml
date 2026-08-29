@@ -6,7 +6,7 @@ repos:
     rev: 25.12.0
     hooks:
       - id: black
-        language_version: python3.12
+        language_version: python3.11
 
   # -----------------------
   # Ruff: Linting + Imports
@@ -30,7 +30,7 @@ repos:
           - types-PyYAML
           - pandas-stubs
           - boto3-stubs[s3]
-        language_version: python3.12
+        language_version: python3.11
 
   # -----------------------
   # Misc Git hygiene

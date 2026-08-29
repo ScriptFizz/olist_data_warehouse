@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from config.config_loader import ConfigLoader
+from olist_dw.config.config_loader import ConfigLoader
 
 logger = logging.getLogger(__name__)
 

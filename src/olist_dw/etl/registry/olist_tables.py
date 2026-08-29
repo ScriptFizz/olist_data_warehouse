@@ -1,5 +1,5 @@
-from etl.registry.tables import TableConfig
-from etl.transform.processed_schemas import (
+from olist_dw.etl.registry.tables import TableConfig
+from olist_dw.etl.transform.processed_schemas import (
     CustomersProcessedSchema,
     GeolocationProcessedSchema,
     OrderItemsProcessedSchema,
@@ -10,7 +10,7 @@ from etl.transform.processed_schemas import (
     SellersProcessedSchema,
     TranslationProcessedSchema,
 )
-from etl.transform.raw_schemas import (
+from olist_dw.etl.transform.raw_schemas import (
     CustomersSchema,
     GeolocationSchema,
     OrderItemsSchema,
@@ -21,7 +21,7 @@ from etl.transform.raw_schemas import (
     SellersSchema,
     TranslationSchema,
 )
-from etl.transform.transform_data import (
+from olist_dw.etl.transform.transform_data import (
     transform_customers,
     transform_geolocation,
     transform_order_items,

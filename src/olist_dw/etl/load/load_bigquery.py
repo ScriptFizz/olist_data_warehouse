@@ -6,8 +6,8 @@ import pandera as pa
 import typer
 from google.cloud import bigquery
 
-from etl.load.pandera_to_bq import pandera_schema_to_bq
-from etl.transform.raw_schemas import validate
+from olist_dw.etl.load.pandera_to_bq import pandera_schema_to_bq
+from olist_dw.etl.transform.raw_schemas import validate
 
 logger = logging.getLogger(__name__)
 

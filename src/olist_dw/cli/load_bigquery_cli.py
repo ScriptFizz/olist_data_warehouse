@@ -3,10 +3,10 @@ from typing import Annotated
 
 import typer
 
-from config.logconfig import setup_logging
-from etl.load.load_bigquery import load_dataset_to_bq
-from etl.registry.olist_tables import TABLES
-from etl.utils.utils_methods import load_csv, load_params
+from olist_dw.config.logconfig import setup_logging
+from olist_dw.etl.load.load_bigquery import load_dataset_to_bq
+from olist_dw.etl.registry.olist_tables import TABLES
+from olist_dw.etl.utils.utils_methods import load_csv, load_params
 
 setup_logging()
 logger = logging.getLogger(__name__)

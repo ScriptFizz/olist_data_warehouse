@@ -4,13 +4,13 @@ from typing import Annotated
 
 import typer
 
-from config.logconfig import setup_logging
-from etl.registry.olist_tables import TABLES
+from olist_dw.config.logconfig import setup_logging
+from olist_dw.etl.registry.olist_tables import TABLES
 
-from etl.registry.tables import TransformContext
-from etl.transform.raw_schemas import validate
-from etl.transform.transform_data import save_processed
-from etl.utils.utils_methods import load_csv, load_dict, load_params
+from olist_dw.etl.registry.tables import TransformContext
+from olist_dw.etl.transform.raw_schemas import validate
+from olist_dw.etl.transform.transform_data import save_processed
+from olist_dw.etl.utils.utils_methods import load_csv, load_dict, load_params
 
 setup_logging()
 logger = logging.getLogger(__name__)

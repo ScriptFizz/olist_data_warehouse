@@ -5,9 +5,9 @@ from typing import Annotated
 
 import typer
 
-from config.logconfig import setup_logging
-from etl.extract.extract_exchange_rates import extract_exchange_json
-from etl.utils.utils_methods import load_params
+from olist_dw.config.logconfig import setup_logging
+from olist_dw.etl.extract.extract_exchange_rates import extract_exchange_json
+from olist_dw.etl.utils.utils_methods import load_params
 
 setup_logging()
 logger = logging.getLogger(__name__)

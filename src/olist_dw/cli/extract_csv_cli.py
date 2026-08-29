@@ -6,8 +6,8 @@ import typer
 from dotenv import load_dotenv
 
 from config.logconfig import setup_logging
-from etl.extract.extract_csv import configure_kaggle_cli, ingest_data
-from etl.utils.utils_methods import load_params
+from olist_dw.etl.extract.extract_csv import configure_kaggle_cli, ingest_data
+from olist_dw.etl.utils.utils_methods import load_params
 
 setup_logging()
 logger = logging.getLogger(__name__)
