@@ -1,10 +1,11 @@
 import pandas as pd
 import pandera as pa
-from olist_dw.src.etl.transform.raw_schemas import (
+from pandera.typing import Series
+
+from olist_dw.etl.transform.raw_schemas import (
     BRAZIL_STATE_CODES,
     OLIST_ORDER_STATUSES,
 )
-from pandera.typing import Series
 
 
 class CustomersProcessedSchema(pa.SchemaModel):
@@ -94,7 +95,7 @@ class SellersProcessedSchema(pa.SchemaModel):
     seller_id: Series[str]
     zipcode: Series[str]
     city: Series[str]
-    state: Series[str]
+    state: Series[str] = pa.Field(isin=BRAZIL_STATE_CODES)
 
     class Config:
         coerce = True

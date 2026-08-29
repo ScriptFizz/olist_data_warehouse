@@ -1,10 +1,14 @@
 import logging
 from typing import Annotated
 
+import pandas as pd
 import typer
 
 from olist_dw.config.logconfig import setup_logging
 from olist_dw.etl.registry.olist_tables import TABLES
+from olist_dw.etl.transform.dataset_contracts import (
+    validate_referential_integrity,
+)
 from olist_dw.etl.transform.raw_schemas import validate
 from olist_dw.etl.transform.transform_data import save_processed
 from olist_dw.etl.utils.utils_methods import load_csv, load_params
@@ -41,6 +45,8 @@ def run(
     processed_data_dir = processed_data_dir or params["paths"]["processed_data_dir"]
 
     logger.info("Transforming data...")
+    processed_tables: dict[str, pd.DataFrame] = {}
+
     for table_conf in TABLES.values():
         df = load_csv(name=table_conf.raw_filename, _dir=raw_data_dir)
 
@@ -50,9 +56,14 @@ def run(
 
         df_transformed = validate(df=df_transformed, schema=table_conf.processed_schema)
 
-        save_processed(
-            df=df_transformed, name=table_conf.name, processed_dir=processed_data_dir
-        )
+        processed_tables[table_conf.name] = df_transformed
+
+    logger.info("Validating relationships across processed datasets...")
+    validate_referential_integrity(processed_tables)
+
+    logger.info("Saving validated processed datasets...")
+    for table_name, dataframe in processed_tables.items():
+        save_processed(df=dataframe, name=table_name, processed_dir=processed_data_dir)
 
     logger.info(f"Processed data saved in {processed_data_dir}!")
 

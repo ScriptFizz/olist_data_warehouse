@@ -15,4 +15,4 @@ class TableConfig:
     raw_schema: type[SchemaModel]
     processed_schema: type[SchemaModel]
 
-    transform: Callable[..., pd.DataFrame]
+    transform: Callable[[pd.DataFrame], pd.DataFrame]
