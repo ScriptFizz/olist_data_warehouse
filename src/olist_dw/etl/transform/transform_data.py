@@ -56,15 +56,13 @@ def transform_customers(customers: pd.DataFrame) -> pd.DataFrame:
     return customers_transformed
 
 
-def transform_order_items(
-    order_items: pd.DataFrame
-) -> pd.DataFrame:
+def transform_order_items(order_items: pd.DataFrame) -> pd.DataFrame:
     """
     Normalize order-item data while preserving source monetary values in BRL.
 
     Args:
                     order_items (pd.DataFrame): pandas DataFrame with order items data.
-    
+
                     pd.DataFrame: pandas DataFrame of the transformed order items data.
     """
 

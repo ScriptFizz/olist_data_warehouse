@@ -1,23 +1,28 @@
 import pandas as pd
 import pandera as pa
+from olist_dw.src.etl.transform.raw_schemas import (
+    BRAZIL_STATE_CODES,
+    OLIST_ORDER_STATUSES,
+)
 from pandera.typing import Series
 
 
 class CustomersProcessedSchema(pa.SchemaModel):
-    customer_id: Series[str]
+    customer_id: Series[str] = pa.Field(unique=True)
     customer_uid: Series[str]
     zipcode: Series[str] = pa.Field(nullable=True)
     city: Series[str]
-    state: Series[str]
+    state: Series[str] = pa.Field(isin=BRAZIL_STATE_CODES)
 
     class Config:
         coerce = True
+        strict = True
 
 
 class OrdersProcessedSchema(pa.SchemaModel):
-    order_id: Series[str]
+    order_id: Series[str] = pa.Field(unique=True)
     customer_id: Series[str]
-    order_status: Series[str]
+    order_status: Series[str] = pa.Field(isin=OLIST_ORDER_STATUSES)
 
     purchase_ts: Series[pa.DateTime]
     approval_ts: Series[pa.DateTime] = pa.Field(nullable=True)
@@ -27,19 +32,22 @@ class OrdersProcessedSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class OrderItemsProcessedSchema(pa.SchemaModel):
     order_id: Series[str]
-    order_item_id: Series[int]
+    order_item_id: Series[int] = pa.Field(ge=1)
     product_id: Series[str]
     seller_id: Series[str]
     shipping_limit_date: Series[pa.DateTime]
-    price: Series[float]
-    freight_value: Series[float]
+    price: Series[float] = pa.Field(ge=0)
+    freight_value: Series[float] = pa.Field(ge=0)
 
     class Config:
         coerce = True
+        strict = True
+        unique = ["order_id", "order_item_id"]
 
 
 class PaymentsProcessedSchema(pa.SchemaModel):
@@ -51,6 +59,7 @@ class PaymentsProcessedSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class ProductsProcessedSchema(pa.SchemaModel):
@@ -66,17 +75,19 @@ class ProductsProcessedSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class GeolocationProcessedSchema(pa.SchemaModel):
     zipcode: Series[str]
-    lat: Series[float] = pa.Field(nullable=True)
-    lng: Series[float] = pa.Field(nullable=True)
+    lat: Series[float] = pa.Field(ge=-90, le=90, nullable=True)
+    lng: Series[float] = pa.Field(ge=-180, le=180, nullable=True)
     city: Series[str]
-    state: Series[str]
+    state: Series[str] = pa.Field(isin=BRAZIL_STATE_CODES)
 
     class Config:
         coerce = True
+        strict = True
 
 
 class SellersProcessedSchema(pa.SchemaModel):
@@ -87,6 +98,7 @@ class SellersProcessedSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class TranslationProcessedSchema(pa.SchemaModel):
@@ -95,12 +107,13 @@ class TranslationProcessedSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class ReviewsProcessedSchema(pa.SchemaModel):
     review_id: Series[str]
     order_id: Series[str]
-    score: Series[int]
+    score: Series[int] = pa.Field(ge=1, le=5)
     title: Series[str] = pa.Field(nullable=True)
     message: Series[str] = pa.Field(nullable=True)
     creation_date: Series[pa.DateTime] = pa.Field(nullable=True)
@@ -108,3 +121,4 @@ class ReviewsProcessedSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True

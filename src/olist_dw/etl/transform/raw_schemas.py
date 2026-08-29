@@ -8,6 +8,53 @@ from pandera.typing import Series
 logger = logging.getLogger(__name__)
 
 
+OLIST_ORDER_STATUSES = frozenset(
+    {
+        "approved",
+        "canceled",
+        "created",
+        "delivered",
+        "invoiced",
+        "processing",
+        "shipped",
+        "unavailable",
+    }
+)
+
+
+BRAZIL_STATE_CODES = frozenset(
+    {
+        "AC",
+        "AL",
+        "AM",
+        "AP",
+        "BA",
+        "CE",
+        "DF",
+        "ES",
+        "GO",
+        "MA",
+        "MG",
+        "MS",
+        "MT",
+        "PA",
+        "PB",
+        "PE",
+        "PI",
+        "PR",
+        "RJ",
+        "RN",
+        "RO",
+        "RR",
+        "RS",
+        "SC",
+        "SE",
+        "SP",
+        "TO",
+    }
+)
+
+
 def validate(df: pd.DataFrame, schema: type[pa.SchemaModel]) -> pd.DataFrame:
     """
     Validate a given pandas DataFrame according to the schema provided.
@@ -29,20 +76,21 @@ def validate(df: pd.DataFrame, schema: type[pa.SchemaModel]) -> pd.DataFrame:
 
 
 class CustomersSchema(pa.SchemaModel):
-    customer_id: Series[str]
+    customer_id: Series[str] = pa.Field(unique=True)
     customer_unique_id: Series[str]
     customer_zip_code_prefix: Series[str] = pa.Field(nullable=True)
     customer_city: Series[str]
-    customer_state: Series[str]
+    customer_state: Series[str] = pa.Field(isin=BRAZIL_STATE_CODES)
 
     class Config:
         coerce = True
+        strict = True
 
 
 class OrdersSchema(pa.SchemaModel):
-    order_id: Series[str]
+    order_id: Series[str] = pa.Field(unique=True)
     customer_id: Series[str]
-    order_status: Series[str]
+    order_status: Series[str] = pa.Field(isin=OLIST_ORDER_STATUSES)
 
     order_purchase_timestamp: Series[pa.DateTime]
     order_approved_at: Series[pa.DateTime] = pa.Field(nullable=True)
@@ -52,19 +100,22 @@ class OrdersSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class OrderItemsSchema(pa.SchemaModel):
     order_id: Series[str]
-    order_item_id: Series[int]
+    order_item_id: Series[int] = pa.Field(ge=1)
     product_id: Series[str]
     seller_id: Series[str]
     shipping_limit_date: Series[pa.DateTime]
-    price: Series[float]
-    freight_value: Series[float]
+    price: Series[float] = pa.Field(ge=0)
+    freight_value: Series[float] = pa.Field(ge=0)
 
     class Config:
         coerce = True
+        strict = True
+        unique = ["order_id", "order_item_id"]
 
 
 class PaymentsSchema(pa.SchemaModel):
@@ -76,6 +127,7 @@ class PaymentsSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class ProductsSchema(pa.SchemaModel):
@@ -91,27 +143,30 @@ class ProductsSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class GeolocationSchema(pa.SchemaModel):
     geolocation_zip_code_prefix: Series[str]
-    geolocation_lat: Series[float] = pa.Field(nullable=True)
-    geolocation_lng: Series[float] = pa.Field(nullable=True)
+    geolocation_lat: Series[float] = pa.Field(ge=-90, le=90, nullable=True)
+    geolocation_lng: Series[float] = pa.Field(ge=-180, le=180, nullable=True)
     geolocation_city: Series[str]
-    geolocation_state: Series[str]
+    geolocation_state: Series[str] = pa.Field(isin=BRAZIL_STATE_CODES)
 
     class Config:
         coerce = True
+        strict = True
 
 
 class SellersSchema(pa.SchemaModel):
     seller_id: Series[str]
     seller_zip_code_prefix: Series[str]
     seller_city: Series[str]
-    seller_state: Series[str]
+    seller_state: Series[str] = pa.Field(isin=BRAZIL_STATE_CODES)
 
     class Config:
         coerce = True
+        strict = True
 
 
 class TranslationSchema(pa.SchemaModel):
@@ -120,12 +175,13 @@ class TranslationSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
 
 
 class ReviewsSchema(pa.SchemaModel):
     review_id: Series[str]
     order_id: Series[str]
-    review_score: Series[int]
+    review_score: Series[int] = pa.Field(ge=1, le=5)
     review_comment_title: Series[str] = pa.Field(nullable=True)
     review_comment_message: Series[str] = pa.Field(nullable=True)
     review_creation_date: Series[pa.DateTime] = pa.Field(nullable=True)
@@ -133,3 +189,4 @@ class ReviewsSchema(pa.SchemaModel):
 
     class Config:
         coerce = True
+        strict = True
