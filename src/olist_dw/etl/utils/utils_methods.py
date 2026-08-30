@@ -1,4 +1,3 @@
-import json
 import logging
 from pathlib import Path
 
@@ -20,21 +19,6 @@ def load_params(env: str | None = None):
             Dict (Python object that best fits the data): configuration data in a nested structure
     """
     return ConfigLoader(env=env).as_dict()
-
-
-def load_dict(path: Path) -> dict:
-    """
-    Load a JSON file into a Dict.
-
-    Args:
-            path (str): filepath of the JSON file to load.
-
-    Returns:
-            (Dict): dictionary the JSON file is loaded into.
-    """
-    with open(path) as fp:
-        d = json.load(fp)
-    return d
 
 
 def load_csv(name: str, _dir: str) -> pd.DataFrame:
