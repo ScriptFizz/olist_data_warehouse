@@ -1,6 +1,4 @@
 import logging
-
-#################################
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, cast
@@ -18,8 +16,6 @@ from olist_dw.etl.load.pandera_to_postgres import (
     pandera_schema_to_postgres,
 )
 
-##################################
-
 logger = logging.getLogger(__name__)
 
 
@@ -30,14 +26,10 @@ class PostgresConnectionInfo:
     server_version: str
 
 
-#################################
 @dataclass(frozen=True)
 class PostgresLoadResult:
     schema: str
     row_counts: dict[str, int]
-
-
-################################
 
 
 def check_postgres_connection(
@@ -77,9 +69,6 @@ def check_postgres_connection(
     )
 
     return connection_info
-
-
-###############################################
 
 
 def load_tables_to_postgres(

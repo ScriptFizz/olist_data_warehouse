@@ -62,3 +62,6 @@ addopts = [
     "-ra",
     "--strict-markers",
 ]
+markers = [
+    "postgres: integration tests requiring a running PostgreSQL instance",
+]
