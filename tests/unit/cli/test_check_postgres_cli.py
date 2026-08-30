@@ -33,7 +33,7 @@ def test_connection_failure_does_not_expose_password(
         _settings: PostgresSettings,
     ) -> PostgresConnectionInfo:
         raise psycopg.OperationalError("connection refused")
-    
+
     monkeypatch.setattr(
         postgres_cli,
         "check_postgres_connection",

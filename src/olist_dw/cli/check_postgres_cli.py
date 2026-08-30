@@ -7,7 +7,7 @@ from olist_dw.etl.load.postgres import check_postgres_connection
 app = typer.Typer(
     help="Verify PostgreSQL configuration and connectivity.",
     pretty_exceptions_show_locals=False,
-    )
+)
 
 
 @app.command()
@@ -18,7 +18,7 @@ def run() -> None:
         typer.echo(f"PostgreSQL configuration error: {exc}", err=True)
         raise typer.Exit(code=2) from None
 
-    try:    
+    try:
         connection_info = check_postgres_connection(settings)
     except psycopg.Error:
         typer.echo(
