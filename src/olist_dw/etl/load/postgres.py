@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class PostgresConnectionInfo:
     database: str
     user: str
-    server_versione: str
+    server_version: str
 
 
 def check_postgres_connection(

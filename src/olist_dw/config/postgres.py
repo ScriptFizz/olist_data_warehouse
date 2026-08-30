@@ -1,6 +1,7 @@
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TypedDict
 
 from dotenv import load_dotenv
 
@@ -9,14 +10,22 @@ class PostgresConfigurationError(ValueError):
     """Raised when PostgreSQL environment configuration is invalid."""
 
 
+class PostgresConnectionKwargs(TypedDict):
+    host: str
+    port: int
+    dbname: str
+    user: str
+    password: str
+
+
 @dataclass(frozen=True)
 class PostgresSettings:
     host: str
     port: int
     database: str
     user: str
-    password: str
     schema: str
+    password: str = field(repr=False)
 
     @classmethod
     def from_env(cls) -> "PostgresSettings":
@@ -55,7 +64,7 @@ class PostgresSettings:
             schema=schema,
         )
 
-    def connection_kwargs(self) -> dict[str, str | int]:
+    def connection_kwargs(self) -> PostgresConnectionKwargs:
         """Return arguments suitable for psycopg.connect."""
         return {
             "host": self.host,
