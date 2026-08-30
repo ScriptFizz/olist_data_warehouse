@@ -27,6 +27,7 @@ dependencies = [
     "statsmodels>=0.14.6,<0.15.0",
     "mkdocs>=1.6.1,<2.0.0",
     "plotly>=6.5.1,<7.0.0",
+    "psycopg[binary]>=3.2,<4.0",
 ]
 
 [dependency-groups]
@@ -44,6 +45,7 @@ olist-extract = "olist_dw.cli.extract_csv_cli:app"
 olist-transform = "olist_dw.cli.transform_cli:app"
 olist-load-bigquery = "olist_dw.cli.load_bigquery_cli:app"
 olist-load-layers = "olist_dw.cli.load_layers_cli:app"
+olist-check-postgres = "olist_dw.cli.check_postgres_cli:app"
 
 
 [build-system]
