@@ -14,7 +14,7 @@ from olist_dw.config.postgres import PostgresSettings
 def postgres_settings() -> Iterator[PostgresSettings]:
     if os.getenv("RUN_POSTGRES_TESTS") != "1":
         pytest.skip("Set RUN_POSTGRES_TEST=1 to run PostgreSQL integration tests")
-    
+
     base_settings = PostgresSettings.from_env()
     test_schema = f"test_raw_{uuid4().hex[:12]}"
     settings = replace(base_settings, schema=test_schema)
@@ -22,7 +22,7 @@ def postgres_settings() -> Iterator[PostgresSettings]:
     try:
         yield settings
     finally:
-        with(
+        with (
             psycopg.connect(**settings.connection_kwargs()) as connection,
             connection.cursor() as cursor,
         ):

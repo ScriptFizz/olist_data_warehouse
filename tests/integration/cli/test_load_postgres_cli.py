@@ -12,11 +12,7 @@ runner = CliRunner()
 
 pytestmark = pytest.mark.postgres
 
-FIXTURE_DIRECTORY = (
-    Path(__file__).resolve().parents[2]
-    / "fixtures"
-    / "processed_olist"
-)
+FIXTURE_DIRECTORY = Path(__file__).resolve().parents[2] / "fixtures" / "processed_olist"
 
 EXPECTED_TABLES = {
     "customers",

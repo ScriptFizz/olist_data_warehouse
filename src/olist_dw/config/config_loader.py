@@ -35,7 +35,7 @@ class ConfigLoader:
         Returns:
             (Path): path of the project root directory.
         """
-        return Path(__file__).resolve().parents[2]
+        return Path(__file__).resolve().parents[3]
 
     def _load(self) -> dict[str, Any]:
         """
