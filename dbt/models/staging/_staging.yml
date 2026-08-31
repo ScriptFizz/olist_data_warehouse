@@ -51,7 +51,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('stg_customer')
+                to: ref('stg_customers')
                 field: customer_id
 
       - name: order_status
