@@ -1,0 +1,121 @@
+version: 2
+
+sources:
+  - name: olist_raw
+    description: >
+      Processed Olist source tables loaded transactionally by the Python
+      ingestion pipeline. Monetary values are preserved in BRL.
+    database: "{{ env_var('DBT_RAW_DATABASE', target.database) }}"
+    schema: "{{ env_var('DBT_RAW_SCHEMA', 'raw') }}"
+
+    tables:
+      - name: customers
+        description: Customer records at one row per customer_id.
+        columns:
+          - name: customer_id
+            data_tests:
+              - not_null
+              - unique
+          - name: customer_uid
+            data_tests:
+              - not_null
+      
+      - name: orders
+        description: Orders at one row per order_id.
+        columns:
+          - name: order_id
+            data_tests:
+              - not_null
+              - unique
+          - name: customer_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('olist_raw', 'customers')
+                    field: customer_id
+        
+      - name: order_items
+        description: Order lines at one row per order_id and order_item_id.
+        columns:
+          - name: order_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('olist_raw', 'orders')
+                    field: order_id
+          - name: order_item_id
+            data_tests:
+              - not_null
+          - name: product_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('olist_raw', 'products')
+                    field: product_id
+          - name: seller_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('olist_raw', 'sellers')
+                    field: seller_id
+    
+      - name: payments
+        description: Payment records at order_id and sequential grain.
+        columns:
+          - name: order_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('olist_raw', 'orders')
+                    field: order_id
+
+      - name: products
+        description: Product records at one row per product_id.
+        columns:
+          - name: product_id
+            data_tests:
+              - not_null
+              - unique
+
+      - name: sellers
+        description: Seller records at one row per seller_id.
+        columns:
+          - name: seller_id
+            data_tests:
+              - not_null
+              - unique
+
+      - name: geolocation
+        description: Geographic observations by postal-code prefix.
+        columns:
+          - name: zipcode
+            data_tests:
+              - not_null
+
+      - name: translation
+        description: Portuguese-to-English product-category mapping.
+        columns:
+          - name: name_brz
+            data_tests:
+              - not_null
+              - unique
+      
+      - name: reviews
+        description: Customer review records associated with orders.
+        columns:
+          - name: review_id
+            data_tests:
+              - not_null
+          - name: order_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('olist_raw', 'orders')
+                    field: order_id
+                

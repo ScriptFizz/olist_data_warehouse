@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      Clean customer source records at one row per customer_id. The
+      customer_unique_id identifies the same buyer across multiple source
+      customer records.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: customer_id
+        description: Source business key for a customer record.
+        data_type: text
+        data_tests:
+          - not_null
+          - unique
+      
+      - name: customer_unique_id
+        description: Stable buyer identifier across customer records.
+        data_type: text
+        data_tests:
+          - not_null
+      
+      - name: zipcode
+        description: Customer postal-code prefix.
+        data_type: text
+      
+      - name: city
+        description: Customer city from the source dataset.
+        data_type: text
+        data_tests:
+          - not_null
+      
+      - name: state_code
+        description: Two-character Brazilian state code.
+        data_type: text
+        data_tests:
+          - not_null
