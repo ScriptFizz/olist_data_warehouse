@@ -3,38 +3,310 @@ version: 2
 models:
   - name: stg_customers
     description: >
-      Clean customer source records at one row per customer_id. The
-      customer_unique_id identifies the same buyer across multiple source
-      customer records.
+      Customer source records at one row per customer_id. A buyer may have
+      multiple customer_id values associated with one customer_unique_id.
     config:
       contract:
         enforced: true
     columns:
       - name: customer_id
-        description: Source business key for a customer record.
         data_type: text
-        data_tests:
-          - not_null
-          - unique
-      
+        description: Source key for a customer record.
+        data_tests: [not_null, unique]
+
       - name: customer_unique_id
-        description: Stable buyer identifier across customer records.
         data_type: text
-        data_tests:
-          - not_null
-      
-      - name: zipcode
+        description: Stable identifier for the buyer.
+        data_tests: [not_null]
+
+      - name: customer_zip_code_prefix
+        data_type: text
         description: Customer postal-code prefix.
+
+      - name: customer_city
         data_type: text
-      
-      - name: city
-        description: Customer city from the source dataset.
+        description: Customer city.
+        data_tests: [not_null]
+
+      - name: customer_state_code
         data_type: text
-        data_tests:
-          - not_null
-      
-      - name: state_code
         description: Two-character Brazilian state code.
+        data_tests: [not_null]
+
+  - name: stg_orders
+    description: Order records at one row per order_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: text
+        description: Source order key.
+        data_tests: [not_null, unique]
+
+      - name: customer_id
+        data_type: text
+        description: Customer record associated with the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customer')
+                field: customer_id
+
+      - name: order_status
+        data_type: text
+        description: Current source status of the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - approved
+                  - canceled
+                  - created
+                  - delivered
+                  - invoiced
+                  - processing
+                  - shipped
+                  - unavailable
+
+      - name: order_purchase_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: order_approved_ts
+        data_type: timestamp without time zone
+
+      - name: order_delivered_carrier_ts
+        data_type: timestamp without time zone
+
+      - name: order_delivered_customer_ts
+        data_type: timestamp without time zone
+
+      - name: order_estimated_delivery_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+  - name: stg_order_items
+    description: >
+      Order-line records at one row per order_id and order_item_id. Monetary
+      values retain their source BRL currency.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
         data_type: text
         data_tests:
           - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+
+      - name: order_item_id
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: product_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+
+      - name: seller_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_sellers')
+                field: seller_id
+
+      - name: shipping_limit_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: item_price_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+      - name: freight_value_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+  - name: stg_payments
+    description: >
+      Payment records at one row per order_id and payment_sequential.
+      Payment values retain their source BRL currency.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+
+      - name: payment_sequential
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: payment_type
+        data_type: text
+        data_tests: [not_null]
+
+      - name: payment_installments
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: payment_value_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+  - name: stg_products
+    description: Product records at one row per product_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: product_id
+        data_type: text
+        data_tests: [not_null, unique]
+
+      - name: product_category_name_portuguese
+        data_type: text
+
+      - name: product_name_length
+        data_type: bigint
+
+      - name: product_description_length
+        data_type: bigint
+
+      - name: product_photos_quantity
+        data_type: bigint
+
+      - name: product_weight_g
+        data_type: bigint
+
+      - name: product_length_cm
+        data_type: bigint
+
+      - name: product_height_cm
+        data_type: bigint
+
+      - name: product_width_cm
+        data_type: bigint
+
+  - name: stg_sellers
+    description: Seller records at one row per seller_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: seller_id
+        data_type: text
+        data_tests: [not_null, unique]
+
+      - name: seller_zip_code_prefix
+        data_type: text
+        data_tests: [not_null]
+
+      - name: seller_city
+        data_type: text
+        data_tests: [not_null]
+
+      - name: seller_state_code
+        data_type: text
+        data_tests: [not_null]
+
+  - name: stg_geolocation
+    description: >
+      Source geolocation observations. Multiple rows can exist for the same
+      postal-code prefix, so uniqueness is intentionally not asserted.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: geo_zip_code_prefix
+        data_type: text
+        data_tests: [not_null]
+
+      - name: latitude
+        data_type: double precision
+
+      - name: longitude
+        data_type: double precision
+
+      - name: geo_city
+        data_type: text
+        data_tests: [not_null]
+
+      - name: geo_state_code
+        data_type: text
+        data_tests: [not_null]
+
+  - name: stg_product_category_translation
+    description: >
+      Product-category translation at one row per Portuguese category name.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: product_category_name_portuguese
+        data_type: text
+        data_tests: [not_null, unique]
+
+      - name: product_category_name_english
+        data_type: text
+        data_tests: [not_null]
+
+  - name: stg_reviews
+    description: >
+      Source review records. review_id and order_id are not asserted unique
+      because duplicate identifiers exist in the full Olist source.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: review_id
+        data_type: text
+        data_tests: [not_null]
+
+      - name: order_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+
+      - name: review_score
+        data_type: bigint
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+                quote: false
+
+      - name: review_title
+        data_type: text
+
+      - name: review_message
+        data_type: text
+
+      - name: review_created_ts
+        data_type: timestamp without time zone
+
+      - name: review_answered_ts
+        data_type: timestamp without time zone
