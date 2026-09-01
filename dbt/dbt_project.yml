@@ -25,4 +25,14 @@ models:
     intermediate:
       +materialized: view
       +schema: intermediate
+
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  olist_warehouse:
+    reference:
+      +schema: reference
+      +quote_columns: false
       
