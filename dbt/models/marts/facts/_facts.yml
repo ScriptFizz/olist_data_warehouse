@@ -1,0 +1,239 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >
+      Order-grain fact containing lifecycle timestamps, delivery performance,
+      additive BRL monetary measures, payment diagnostics, and selected review
+      measures. Exactly one row per order_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: text
+        description: Natural order key and declared fact grain.
+        data_tests: [not_null, unique]
+
+      - name: customer_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: customer_unique_id
+        data_type: text
+        data_tests: [not_null]
+
+      - name: order_status
+        data_type: text
+        data_tests: [not_null]
+
+      - name: order_purchase_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: order_purchase_date
+        data_type: date
+        data_tests: [not_null]
+
+      - name: order_approved_ts
+        data_type: timestamp without time zone
+
+      - name: order_delivered_carrier_ts
+        data_type: timestamp without time zone
+
+      - name: order_delivered_customer_ts
+        data_type: timestamp without time zone
+
+      - name: order_estimated_delivery_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: is_delivered
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: delivery_duration_days
+        data_type: bigint
+        description: Non-additive elapsed delivery duration.
+
+      - name: delivery_delay_days
+        data_type: bigint
+        description: >
+          Signed difference between actual and estimated delivery timestamps.
+          Positive values indicate lateness.
+
+      - name: is_late_delivery
+        data_type: boolean
+
+      - name: has_order_items
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: item_count
+        data_type: bigint
+        description: Additive count of order-item rows.
+        data_tests: [not_null]
+
+      - name: distinct_product_count
+        data_type: bigint
+        description: >
+          Distinct products within the order. Not additive across orders.
+        data_tests: [not_null]
+
+      - name: item_subtotal_brl
+        data_type: double precision
+        description: Additive item-price total in BRL.
+        data_tests: [not_null]
+
+      - name: freight_total_brl
+        data_type: double precision
+        description: Additive freight total in BRL.
+        data_tests: [not_null]
+
+      - name: order_item_total_brl
+        data_type: double precision
+        description: Additive item and freight total in BRL.
+        data_tests: [not_null]
+
+      - name: has_payment
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: payment_record_count
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: payment_method_count
+        data_type: bigint
+        description: Distinct payment methods within an order; non-additive.
+        data_tests: [not_null]
+
+      - name: maximum_installments
+        data_type: bigint
+        description: Maximum installment count among the order's payments.
+
+      - name: payment_total_brl
+        data_type: double precision
+        description: Additive payment total in BRL.
+        data_tests: [not_null]
+
+      - name: payment_item_difference_brl
+        data_type: double precision
+        description: >
+          Payment total minus item-and-freight total. Diagnostic measure; it
+          is not required to be zero.
+        data_tests: [not_null]
+
+      - name: has_review
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: review_id
+        data_type: text
+
+      - name: review_score
+        data_type: bigint
+        description: Non-additive selected review score.
+
+      - name: review_created_ts
+        data_type: timestamp without time zone
+
+      - name: review_answered_ts
+        data_type: timestamp without time zone
+
+      - name: review_record_count
+        data_type: bigint
+        description: Number of source review records found for the order.
+        data_tests: [not_null]
+
+  - name: fct_order_items
+    description: >
+      Order-line fact containing additive BRL item and freight measures.
+      Exactly one row per order_id and order_item_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+
+      - name: order_item_id
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: product_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+
+      - name: seller_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_id
+
+      - name: customer_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: customer_unique_id
+        data_type: text
+        data_tests: [not_null]
+
+      - name: order_status
+        data_type: text
+        data_tests: [not_null]
+
+      - name: order_purchase_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: order_purchase_date
+        data_type: date
+        data_tests: [not_null]
+
+      - name: is_delivered
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: shipping_limit_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: item_price_brl
+        data_type: double precision
+        description: Additive item price in BRL.
+        data_tests: [not_null]
+
+      - name: freight_value_brl
+        data_type: double precision
+        description: Additive allocated freight value in BRL.
+        data_tests: [not_null]
+
+      - name: item_total_brl
+        data_type: double precision
+        description: Additive item price plus freight in BRL.
+        data_tests: [not_null]
