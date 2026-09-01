@@ -203,3 +203,141 @@ models:
       - name: coordinate_observation_count
         data_type: bigint
         data_tests: [not_null]
+  
+  - name: int_orders_enriched
+    description: >
+      Canonical order-grain model containing customer identity, lifecycle
+      timestamps, delivery measures, item totals, payment totals, and the
+      deterministically selected review. Exactly one row per order_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: text
+        description: Source order key.
+        data_tests: [not_null, unique]
+
+      - name: customer_id
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      
+      - name: customer_unique_id
+        data_type: text
+        data_tests: [not_null]
+
+      - name: order_status
+        data_type: text
+        data_tests: [not_null]
+
+      - name: order_purchase_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: order_purchase_date
+        data_type: date
+        data_tests: [not_null]
+
+      - name: order_approved_ts
+        data_type: timestamp without time zone
+
+      - name: order_delivered_carrier_ts
+        data_type: timestamp without time zone
+
+      - name: order_delivered_customer_ts
+        data_type: timestamp without time zone
+
+      - name: order_estimated_delivery_ts
+        data_type: timestamp without time zone
+        data_tests: [not_null]
+
+      - name: is_delivered
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: delivery_duration_days
+        data_type: bigint
+
+      - name: delivery_delay_days
+        data_type: bigint
+
+      - name: is_late_delivery
+        data_type: boolean
+
+      - name: has_order_items
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: item_count
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: distinct_product_count
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: item_subtotal_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+      - name: freight_total_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+      - name: order_item_total_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+      - name: has_payment
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: payment_record_count
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: payment_method_count
+        data_type: bigint
+        data_tests: [not_null]
+
+      - name: maximum_installments
+        data_type: bigint
+
+      - name: payment_total_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+      - name: payment_item_difference_brl
+        data_type: double precision
+        data_tests: [not_null]
+
+      - name: has_review
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: review_id
+        data_type: text
+
+      - name: review_score
+        data_type: bigint
+
+      - name: review_title
+        data_type: text
+
+      - name: review_message
+        data_type: text
+
+      - name: review_created_ts
+        data_type: timestamp without time zone
+
+      - name: review_answered_ts
+        data_type: timestamp without time zone
+
+      - name: review_record_count
+        data_type: bigint
+        data_tests: [not_null]
