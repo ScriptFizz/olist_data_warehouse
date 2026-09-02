@@ -16,7 +16,10 @@ renamed as (
         weight_g as product_weight_g,
         length_cm as product_length_cm,
         height_cm as product_height_cm,
-        width_cm as product_width_cm
+        width_cm as product_width_cm,
+        _batch_id as ingestion_batch_id,
+        _ingested_at as source_ingested_at,
+        _record_hash as source_record_hash
     from source
 
 )

@@ -19,6 +19,21 @@ sources:
           - name: customer_uid
             data_tests:
               - not_null
+          
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
       
       - name: orders
         description: Orders at one row per order_id.
@@ -34,6 +49,21 @@ sources:
                   arguments:
                     to: source('olist_raw', 'customers')
                     field: customer_id
+
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
         
       - name: order_items
         description: Order lines at one row per order_id and order_item_id.
@@ -62,6 +92,22 @@ sources:
                   arguments:
                     to: source('olist_raw', 'sellers')
                     field: seller_id
+            
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
+
     
       - name: payments
         description: Payment records at order_id and sequential grain.
@@ -73,6 +119,23 @@ sources:
                   arguments:
                     to: source('olist_raw', 'orders')
                     field: order_id
+          
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
+
+
 
       - name: products
         description: Product records at one row per product_id.
@@ -81,6 +144,22 @@ sources:
             data_tests:
               - not_null
               - unique
+          
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
+
 
       - name: sellers
         description: Seller records at one row per seller_id.
@@ -89,6 +168,22 @@ sources:
             data_tests:
               - not_null
               - unique
+          
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
+
 
       - name: geolocation
         description: Geographic observations by postal-code prefix.
@@ -96,6 +191,23 @@ sources:
           - name: zipcode
             data_tests:
               - not_null
+          
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
+
+
 
       - name: translation
         description: Portuguese-to-English product-category mapping.
@@ -104,6 +216,22 @@ sources:
             data_tests:
               - not_null
               - unique
+          
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
+
       
       - name: reviews
         description: Customer review records associated with orders.
@@ -118,4 +246,20 @@ sources:
                   arguments:
                     to: source('olist_raw', 'orders')
                     field: order_id
+          
+          - name: _batch_id
+            description: UUID of the ingestion attempt that last published this row.
+            data_tests:
+              - not_null
+
+          - name: _ingested_at
+            description: UTC timestamp at which this row was published to the raw layer.
+            data_tests:
+              - not_null
+
+          - name: _record_hash
+            description: Deterministic SHA-256 hash of the source business values.
+            data_tests:
+              - not_null
+              - unique
                 

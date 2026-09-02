@@ -32,6 +32,21 @@ models:
         data_type: text
         description: Two-character Brazilian state code.
         data_tests: [not_null]
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
 
   - name: stg_orders
     description: Order records at one row per order_id.
@@ -87,6 +102,21 @@ models:
       - name: order_estimated_delivery_ts
         data_type: timestamp without time zone
         data_tests: [not_null]
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
 
   - name: stg_order_items
     description: >
@@ -138,6 +168,22 @@ models:
       - name: freight_value_brl
         data_type: double precision
         data_tests: [not_null]
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
+
 
   - name: stg_payments
     description: >
@@ -171,6 +217,21 @@ models:
       - name: payment_value_brl
         data_type: double precision
         data_tests: [not_null]
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
 
   - name: stg_products
     description: Product records at one row per product_id.
@@ -205,6 +266,21 @@ models:
 
       - name: product_width_cm
         data_type: bigint
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
 
   - name: stg_sellers
     description: Seller records at one row per seller_id.
@@ -227,6 +303,21 @@ models:
       - name: seller_state_code
         data_type: text
         data_tests: [not_null]
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
 
   - name: stg_geolocation
     description: >
@@ -253,6 +344,21 @@ models:
       - name: geo_state_code
         data_type: text
         data_tests: [not_null]
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
 
   - name: stg_product_category_translation
     description: >
@@ -268,6 +374,21 @@ models:
       - name: product_category_name_english
         data_type: text
         data_tests: [not_null]
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
 
   - name: stg_reviews
     description: >
@@ -310,3 +431,18 @@ models:
 
       - name: review_answered_ts
         data_type: timestamp without time zone
+      
+      - name: ingestion_batch_id
+        description: UUID of the raw ingestion attempt that last published this row.
+        data_tests:
+          - not_null
+
+      - name: source_ingested_at
+        description: UTC timestamp at which this source row was published.
+        data_tests:
+          - not_null
+
+      - name: source_record_hash
+        description: Deterministic hash of the source business values.
+        data_tests:
+          - not_null
