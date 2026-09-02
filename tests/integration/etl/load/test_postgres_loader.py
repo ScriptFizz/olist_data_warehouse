@@ -1,9 +1,5 @@
-# import os
-# from collections.abc import Iterator
-# from dataclasses import replace
 from typing import Any, cast
 
-# from uuid import uuid4
 import pandas as pd
 import pandera as pa
 import psycopg
@@ -32,29 +28,6 @@ class EventsSchema(pa.SchemaModel):
 
 
 pytestmark = pytest.mark.postgres
-
-
-# @pytest.fixture
-# def postgres_settings() -> Iterator[PostgresSettings]:
-#     if os.getenv("RUN_POSTGRES_TESTS") != "1":
-#         pytest.skip("Set RUN_POSTGRES_TESTS=1 to run PostgreSQL integration tests")
-
-#     base_settings = PostgresSettings.from_env()
-#     test_schema = f"test_raw_{uuid4().hex[:12]}"
-#     settings = replace(base_settings, schema=test_schema)
-
-#     try:
-#         yield settings
-#     finally:
-#         with (
-#             psycopg.connect(**settings.connection_kwargs()) as connection,
-#             connection.cursor() as cursor,
-#         ):
-#             cursor.execute(
-#                 sql.SQL("DROP SCHEMA IF EXISTS {} CASCADE").format(
-#                     sql.Identifier(test_schema)
-#                 )
-#             )
 
 
 def schemas() -> dict[str, type[pa.SchemaModel]]:

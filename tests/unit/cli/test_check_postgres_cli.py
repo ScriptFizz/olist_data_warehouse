@@ -19,6 +19,7 @@ def test_connection_failure_does_not_expose_password(
         port=5999,
         database="olist",
         user="olist",
+        audit_schema="pipeline_metadata",
         schema="raw",
         password=secret,
     )

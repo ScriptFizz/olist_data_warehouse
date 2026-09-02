@@ -25,6 +25,7 @@ class PostgresSettings:
     database: str
     user: str
     schema: str
+    audit_schema: str
     password: str = field(repr=False)
 
     @classmethod
@@ -36,6 +37,7 @@ class PostgresSettings:
         user = _required_environment_variable("POSTGRES_USER")
         password = _required_environment_variable("POSTGRES_PASSWORD")
         schema = _required_environment_variable("POSTGRES_SCHEMA")
+        audit_schema = _required_environment_variable("POSTGRES_AUDIT_SCHEMA")
         port_text = _required_environment_variable("POSTGRES_PORT")
 
         try:
@@ -49,17 +51,26 @@ class PostgresSettings:
             raise PostgresConfigurationError(
                 "POSTGRES_PORT must be between 1 and 65535"
             )
-
-        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", schema):
-            raise PostgresConfigurationError(
-                "POSTGRES_SCHEMA must be a valid unquoted PostgreSQL identifier"
-            )
+        
+        for variable_name, schema_name in {
+            "POSTGRES_SCHEMA": schema,
+            "POSTGRES_AUDIT_SCHEMA": audit_schema,
+        }.items():
+            if not re.fullmatch(
+                r"[A-Za-z_][A-Za-z0-9_]*",
+                schema_name,
+            ):
+                raise PostgresConfigurationError(
+                    f"{variable_name} must be a valid unquoted "
+                    "PostgreSQL identifier"
+                )
 
         return cls(
             host=host,
             port=port,
             database=database,
             user=user,
+            audit_schema=audit_schema,
             password=password,
             schema=schema,
         )

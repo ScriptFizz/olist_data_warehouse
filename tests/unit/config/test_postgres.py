@@ -12,6 +12,7 @@ POSTGRES_ENVIRONMENT = {
     "POSTGRES_USER": "olist",
     "POSTGRES_PASSWORD": "local-secret",
     "POSTGRES_SCHEMA": "raw",
+    "POSTGRES_AUDIT_SCHEMA": "pipeline_metadata",
 }
 
 
@@ -39,6 +40,7 @@ def test_postgres_settings_load_from_environment(
         user="olist",
         password="local-secret",
         schema="raw",
+        audit_schema="pipeline_metadata",
     )
 
 
@@ -102,5 +104,30 @@ def test_postgres_settings_reject_invalid_schema(
     with pytest.raises(
         PostgresConfigurationError,
         match="POSTGRES_SCHEMA",
+    ):
+        PostgresSettings.from_env()
+
+
+@pytest.mark.parametrize(
+    "schema",
+    [
+        "audit-data",
+        "audit data",
+        "audit; drop schema public",
+        "123audit",
+    ],
+)
+def test_postgres_settings_reject_invalid_audit_schema(
+    monkeypatch: pytest.MonkeyPatch,
+    schema: str,
+) -> None:
+    set_postgres_environment(
+        monkeypatch,
+        POSTGRES_AUDIT_SCHEMA=schema,
+    )
+
+    with pytest.raises(
+        PostgresConfigurationError,
+        match="POSTGRES_AUDIT_SCHEMA",
     ):
         PostgresSettings.from_env()
