@@ -61,10 +61,11 @@ class PaymentsProcessedSchema(pa.SchemaModel):
     class Config:
         coerce = True
         strict = True
+        unique=["order_id", "sequential"]
 
 
 class ProductsProcessedSchema(pa.SchemaModel):
-    product_id: Series[str]
+    product_id: Series[str] = pa.Field(unique=True)
     name: Series[str] = pa.Field(nullable=True)
     name_length: Series[pd.Int64Dtype] = pa.Field(nullable=True)
     description_length: Series[pd.Int64Dtype] = pa.Field(nullable=True)
@@ -92,7 +93,7 @@ class GeolocationProcessedSchema(pa.SchemaModel):
 
 
 class SellersProcessedSchema(pa.SchemaModel):
-    seller_id: Series[str]
+    seller_id: Series[str] = pa.Field(unique=True)
     zipcode: Series[str]
     city: Series[str]
     state: Series[str] = pa.Field(isin=BRAZIL_STATE_CODES)
@@ -103,7 +104,7 @@ class SellersProcessedSchema(pa.SchemaModel):
 
 
 class TranslationProcessedSchema(pa.SchemaModel):
-    name_brz: Series[str]
+    name_brz: Series[str] = pa.Field(unique=True)
     name_eng: Series[str]
 
     class Config:

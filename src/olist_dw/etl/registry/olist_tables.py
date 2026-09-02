@@ -1,4 +1,4 @@
-from olist_dw.etl.registry.tables import TableConfig
+from olist_dw.etl.registry.tables import LoadStrategy, TableConfig
 from olist_dw.etl.transform.processed_schemas import (
     CustomersProcessedSchema,
     GeolocationProcessedSchema,
@@ -41,6 +41,8 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=CustomersSchema,
         processed_schema=CustomersProcessedSchema,
         transform=transform_customers,
+        load_strategy=LoadStrategy.UPSERT,
+        business_key=("customer_id",),
     ),
     "orders": TableConfig(
         name="orders",
@@ -49,6 +51,8 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=OrdersSchema,
         processed_schema=OrdersProcessedSchema,
         transform=transform_orders,
+        load_strategy=LoadStrategy.UPSERT,
+        business_key=("order_id",),
     ),
     "order_items": TableConfig(
         name="order_items",
@@ -57,6 +61,8 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=OrderItemsSchema,
         processed_schema=OrderItemsProcessedSchema,
         transform=transform_order_items,
+        load_strategy=LoadStrategy.UPSERT,
+        business_key=("order_id", "order_item_id"),
     ),
     "payments": TableConfig(
         name="payments",
@@ -65,6 +71,8 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=PaymentsSchema,
         processed_schema=PaymentsProcessedSchema,
         transform=transform_payments,
+        load_strategy=LoadStrategy.UPSERT,
+        business_key=("order_id", "sequential"),
     ),
     "products": TableConfig(
         name="products",
@@ -73,6 +81,8 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=ProductsSchema,
         processed_schema=ProductsProcessedSchema,
         transform=transform_products,
+        load_strategy=LoadStrategy.UPSERT,
+        business_key=("product_id",),
     ),
     "sellers": TableConfig(
         name="sellers",
@@ -81,6 +91,8 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=SellersSchema,
         processed_schema=SellersProcessedSchema,
         transform=transform_sellers,
+        load_strategy=LoadStrategy.UPSERT,
+        business_key=("seller_id",),
     ),
     "geolocation": TableConfig(
         name="geolocation",
@@ -89,6 +101,7 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=GeolocationSchema,
         processed_schema=GeolocationProcessedSchema,
         transform=transform_geolocation,
+        load_strategy=LoadStrategy.SNAPSHOT_REPLACE,
     ),
     "translation": TableConfig(
         name="translation",
@@ -97,6 +110,7 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=TranslationSchema,
         processed_schema=TranslationProcessedSchema,
         transform=transform_translation,
+        load_strategy=LoadStrategy.SNAPSHOT_REPLACE,
     ),
     "reviews": TableConfig(
         name="reviews",
@@ -105,5 +119,6 @@ TABLES: dict[str, TableConfig] = {
         raw_schema=ReviewsSchema,
         processed_schema=ReviewsProcessedSchema,
         transform=transform_reviews,
+        load_strategy=LoadStrategy.APPEND_DEDUPLICATE,
     ),
 }

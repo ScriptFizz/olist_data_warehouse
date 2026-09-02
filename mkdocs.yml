@@ -1,1 +1,10 @@
-site_name: My Docs
+site_name: Olist Data Warehouse
+
+nav:
+  - Home: index.md
+  - Engineering:
+      - ETL: engineering/etl/index.md
+      - Decisions:
+          - PostgreSQL raw loading: engineering/decisions/001-postgres-raw-loading-strategy.md
+  - Metrics:
+      - Customer KPIs: metrics/customer_kpis.md
