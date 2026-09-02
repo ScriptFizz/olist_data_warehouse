@@ -53,6 +53,30 @@ def table_row_counts(
     return counts
 
 
+def audit_rows(settings: PostgresSettings) -> list[tuple[object, ...]]:
+    with (
+        psycopg.connect(**settings.connection_kwargs()) as connection,
+        connection.cursor() as cursor,
+    ):
+        cursor.execute(
+            sql.SQL(
+                """
+                SELECT
+                    batch_id,
+                    source_fingerprint,
+                    status,
+                    table_count,
+                    input_row_count,
+                    error_type,
+                    completed_at
+                FROM {}.ingestion_runs
+                ORDER BY started_at
+                """
+            ).format(sql.Identifier(settings.audit_schema))
+        )
+        return cursor.fetchall()
+
+
 def test_load_postgres_cli_loads_complete_fixture_idempotently(
     monkeypatch: pytest.MonkeyPatch,
     postgres_settings: PostgresSettings,
@@ -70,7 +94,8 @@ def test_load_postgres_cli_loads_complete_fixture_idempotently(
 
     assert first_result.exit_code == 0, first_result.output
     assert "tables=9" in first_result.output
-    assert "rows=9" in first_result.output
+    assert "input_rows=9" in first_result.output
+    assert "affected_rows=9" in first_result.output
     assert table_row_counts(postgres_settings) == {
         table_name: 1 for table_name in EXPECTED_TABLES
     }
@@ -81,6 +106,17 @@ def test_load_postgres_cli_loads_complete_fixture_idempotently(
     )
 
     assert second_result.exit_code == 0, second_result.output
+    assert "input_rows=9" in second_result.output
     assert table_row_counts(postgres_settings) == {
         table_name: 1 for table_name in EXPECTED_TABLES
     }
+
+    runs = audit_rows(postgres_settings)
+    assert len(runs) == 2
+    assert runs[0][0] != runs[1][0]
+    assert runs[0][1] == runs[1][1]
+    assert all(run[2] == "succeeded" for run in runs)
+    assert all(run[3] == 9 for run in runs)
+    assert all(run[4] == 9 for run in runs)
+    assert all(run[5] is None for run in runs)
+    assert all(run[6] is not None for run in runs)

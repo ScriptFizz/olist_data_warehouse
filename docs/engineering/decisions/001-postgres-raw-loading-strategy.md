@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted. Implementation in progress.
+Implemented.
 
 ## Context
 
@@ -36,14 +36,13 @@ PostgreSQL raw tables use table-specific loading strategies.
 The original Olist CSV collection is treated as a bootstrap snapshot. Later
 loads may contain new or changed records for upsert-managed tables.
 
-Every published row will contain:
+Every published row contains:
 
-- `_ingestion_batch_id`;
+- `_batch_id`;
 - `_ingested_at`;
-- `_record_hash`;
-- `_warehouse_updated_at`.
+- `_record_hash`.
 
-Each run will be recorded in an ingestion audit table.
+Each run is recorded in a separate ingestion audit table.
 
 ## Idempotency
 
@@ -62,13 +61,14 @@ For snapshot-replacement tables:
 
 - the complete table is replaced transactionally.
 
-Replaying an identical batch must not create duplicates or change
-`_warehouse_updated_at`.
+Replaying an identical batch does not create duplicates or change its existing
+row metadata.
 
 ## Failure recovery
 
-All staging, audit, and publication operations occur in one PostgreSQL
-transaction. If any table fails:
+Raw-table staging and publication occur in one PostgreSQL transaction. The
+audit ledger uses separate committed transactions so that failure evidence
+survives a raw publication rollback. If any table fails:
 
 - no target table changes are committed;
 - the ingestion run is recorded as failed in a separate failure-handling step;
@@ -88,9 +88,9 @@ is future work.
 
 ## dbt impact
 
-Incremental dbt models must use affected business keys or
-`_warehouse_updated_at`; they must not rely only on the maximum business event
-date. This allows late changes to historical orders to be processed.
+Incremental dbt models must use affected business keys or `_ingested_at`; they
+must not rely only on the maximum business event date. This allows late changes
+to historical orders to be processed.
 
 ## Consequences
 

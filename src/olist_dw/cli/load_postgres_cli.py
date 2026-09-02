@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 import pandas as pd
 import psycopg
 import typer
@@ -7,7 +9,13 @@ from olist_dw.config.postgres import (
     PostgresConfigurationError,
     PostgresSettings,
 )
+from olist_dw.etl.load.ingestion_batch import IngestionBatch
 from olist_dw.etl.load.postgres import load_tables_to_postgres
+from olist_dw.etl.load.postgres_audit import (
+    IngestionStatus,
+    finish_ingestion_run,
+    start_ingestion_run,
+)
 from olist_dw.etl.registry.olist_tables import TABLES
 from olist_dw.etl.transform.dataset_contracts import (
     DatasetContractError,
@@ -52,13 +60,31 @@ def run(
 
         validate_referential_integrity(tables)
 
-        result = load_tables_to_postgres(
+        batch = IngestionBatch.create(
+            source_name="processed_csv",
             tables=tables,
-            schemas={
-                name: table_config.processed_schema
-                for name, table_config in TABLES.items()
-            },
+        )
+        start_ingestion_run(settings=settings, batch=batch)
+
+        try:
+            result = load_tables_to_postgres(
+                tables=tables,
+                table_configs=TABLES,
+                settings=settings,
+                batch=batch,
+            )
+        except Exception as exc:
+            _record_failed_run(
+                settings=settings,
+                batch=batch,
+                error=exc,
+            )
+            raise
+
+        finish_ingestion_run(
             settings=settings,
+            batch=batch,
+            status=IngestionStatus.SUCCEEDED,
         )
 
     except PostgresConfigurationError as exc:
@@ -76,10 +102,28 @@ def run(
         raise typer.Exit(code=1) from None
 
     typer.echo(
-        f"PostgreSQL load completed: schema={result.schema}, "
-        f"tables={len(result.row_counts)}, "
-        f"rows={sum(result.row_counts.values())}"
+        f"PostgreSQL load completed: batch_id={batch.batch_id}, "
+        f"schema={result.schema}, "
+        f"tables={len(result.input_row_counts)}, "
+        f"input_rows={sum(result.input_row_counts.values())}, "
+        f"affected_rows={sum(result.affected_row_counts.values())}"
     )
+
+
+def _record_failed_run(
+    *,
+    settings: PostgresSettings,
+    batch: IngestionBatch,
+    error: Exception,
+) -> None:
+    """Best-effort audit update that never hides the publication error."""
+    with suppress(psycopg.Error):
+        finish_ingestion_run(
+            settings=settings,
+            batch=batch,
+            status=IngestionStatus.FAILED,
+            error_type=type(error).__name__,
+        )
 
 
 if __name__ == "__main__":

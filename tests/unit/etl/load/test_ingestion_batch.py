@@ -13,7 +13,7 @@ def example_table() -> pd.DataFrame:
             "identifier": ["a", "b"],
             "amount": [10.5, None],
             "occurred_at": pd.to_datetime(
-                ["2024-01-01 10:00:00", None]
+                ["2024-01-01 10:00:00", "NaT"]
             ),
         }
     )
