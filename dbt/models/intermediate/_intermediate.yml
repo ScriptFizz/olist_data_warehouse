@@ -39,6 +39,9 @@ models:
         data_type: double precision
         data_tests: [not_null]
 
+      - name: item_metrics_updated_at
+        data_type: timestamp without time zone
+
   - name: int_order_payment_metrics
     description: Payment measures aggregated to one row per order_id.
     config:
@@ -70,6 +73,9 @@ models:
       - name: payment_total_brl
         data_type: double precision
         data_tests: [not_null]
+      
+      - name: payment_metrics_updated_at
+        data_type: timestamp without time zone
 
   - name: int_order_reviews_deduplicated
     description: >
@@ -116,6 +122,9 @@ models:
       - name: review_record_count
         data_type: bigint
         data_tests: [not_null]
+      
+      - name: review_metrics_updated_at
+        data_type: timestamp without time zone
 
   - name: int_product_categories
     description: >
@@ -341,3 +350,31 @@ models:
       - name: review_record_count
         data_type: bigint
         data_tests: [not_null]
+      
+      - name: order_updated_at
+        data_type: timestamp
+        description: Raw ingestion timestamp of the order record.
+        data_tests:
+          - not_null
+
+      - name: customer_updated_at
+        data_type: timestamp
+        description: Raw ingestion timestamp of the joined customer record.
+
+      - name: item_metrics_updated_at
+        data_type: timestamp
+        description: Latest raw ingestion timestamp among the order's item records.
+
+      - name: payment_metrics_updated_at
+        data_type: timestamp
+        description: Latest raw ingestion timestamp among the order's payment records.
+
+      - name: review_metrics_updated_at
+        data_type: timestamp
+        description: Latest raw ingestion timestamp among all reviews for the order.
+
+      - name: warehouse_updated_at
+        data_type: timestamp
+        description: Latest relevant source-ingestion timestamp affecting the enriched order.
+        data_tests:
+          - not_null

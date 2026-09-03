@@ -15,7 +15,8 @@ aggregated as (
         count(distinct product_id) as distinct_product_count,
         sum(item_price_brl) as item_subtotal_brl,
         sum(freight_value_brl) as freight_total_brl,
-        sum(item_price_brl + freight_value_brl) as order_item_total_brl
+        sum(item_price_brl + freight_value_brl) as order_item_total_brl,
+        max(source_ingested_at) as item_metrics_updated_at
     from order_items
     group by order_id
 

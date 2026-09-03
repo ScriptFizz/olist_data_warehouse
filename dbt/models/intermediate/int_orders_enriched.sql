@@ -131,7 +131,20 @@ final as (
         coalesce(
             reviews.review_record_count,
             0
-        ) as review_record_count
+        ) as review_record_count,
+        orders.source_ingested_at as order_updated_at,
+        customers.source_ingested_at as customer_updated_at,
+        item_metrics.item_metrics_updated_at,
+        payment_metrics.payment_metrics_updated_at,
+        reviews.review_metrics_updated_at,
+
+        {{ greatest_timestamp([
+            'orders.source_ingested_at',
+            'customers.source_ingested_at',
+            'item_metrics.item_metrics_updated_at',
+            'payment_metrics.payment_metrics_updated_at',
+            'reviews.review_metrics_updated_at'
+        ]) }} as warehouse_updated_at
 
     from orders
     left join customers

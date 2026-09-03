@@ -61,7 +61,8 @@ final as (
         review_score,
         review_created_ts,
         review_answered_ts,
-        review_record_count
+        review_record_count,
+        warehouse_updated_at
     from orders
 
 )

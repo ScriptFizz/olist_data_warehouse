@@ -19,7 +19,9 @@ orders as (
         order_status,
         order_purchase_ts,
         order_purchase_date,
-        is_delivered
+        is_delivered,
+        order_updated_at,
+        customer_updated_at
     from {{ ref('int_orders_enriched') }}
 
 ),
@@ -46,7 +48,12 @@ final as (
         (
             order_items.item_price_brl
             + order_items.freight_value_brl
-        ) as item_total_brl
+        ) as item_total_brl,
+                {{ greatest_timestamp([
+            'order_items.source_ingested_at',
+            'orders.order_updated_at',
+            'orders.customer_updated_at'
+        ]) }} as warehouse_updated_at
 
     from order_items
     inner join orders

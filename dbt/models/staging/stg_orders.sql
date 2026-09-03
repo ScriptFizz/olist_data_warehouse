@@ -16,9 +16,9 @@ renamed as (
         delivery_carrier_ts as order_delivered_carrier_ts,
         delivery_customer_ts as order_delivered_customer_ts,
         estimated_delivery_ts as order_estimated_delivery_ts,
-        _batch_id as ingestion_batch_id,
-        _ingested_at as source_ingested_at,
-        _record_hash as source_record_hash
+        cast(_batch_id as {{ dbt.type_string() }}) as ingestion_batch_id,
+        cast(_ingested_at as {{ dbt.type_timestamp() }}) as source_ingested_at,
+        cast(_record_hash as {{ dbt.type_string() }}) as source_record_hash
     from source
 
 )

@@ -36,7 +36,10 @@ ranked as (
                 case when review_created_ts is null then 1 else 0 end,
                 review_created_ts desc,
                 review_id desc
-        ) as review_recency_rank
+        ) as review_recency_rank,
+        max(source_ingested_at) over (
+            partition by order_id
+        ) as review_metrics_updated_at
     from reviews
 
 ),
@@ -51,7 +54,8 @@ latest_review as (
         review_message,
         review_created_ts,
         review_answered_ts,
-        review_record_count
+        review_record_count,
+        review_metrics_updated_at
     from ranked
     where review_recency_rank = 1
 

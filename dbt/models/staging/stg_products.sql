@@ -17,9 +17,9 @@ renamed as (
         length_cm as product_length_cm,
         height_cm as product_height_cm,
         width_cm as product_width_cm,
-        _batch_id as ingestion_batch_id,
-        _ingested_at as source_ingested_at,
-        _record_hash as source_record_hash
+        cast(_batch_id as {{ dbt.type_string() }}) as ingestion_batch_id,
+        cast(_ingested_at as {{ dbt.type_timestamp() }}) as source_ingested_at,
+        cast(_record_hash as {{ dbt.type_string() }}) as source_record_hash
     from source
 
 )

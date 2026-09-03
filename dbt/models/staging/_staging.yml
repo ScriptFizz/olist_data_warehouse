@@ -34,16 +34,19 @@ models:
         data_tests: [not_null]
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -104,16 +107,19 @@ models:
         data_tests: [not_null]
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -170,16 +176,19 @@ models:
         data_tests: [not_null]
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -219,16 +228,19 @@ models:
         data_tests: [not_null]
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -268,16 +280,19 @@ models:
         data_type: bigint
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -305,16 +320,19 @@ models:
         data_tests: [not_null]
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -346,16 +364,19 @@ models:
         data_tests: [not_null]
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -376,16 +397,19 @@ models:
         data_tests: [not_null]
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null
@@ -433,16 +457,19 @@ models:
         data_type: timestamp without time zone
       
       - name: ingestion_batch_id
+        data_type: string
         description: UUID of the raw ingestion attempt that last published this row.
         data_tests:
           - not_null
 
       - name: source_ingested_at
+        data_type: timestamp
         description: UTC timestamp at which this source row was published.
         data_tests:
           - not_null
 
       - name: source_record_hash
+        data_type: string
         description: Deterministic hash of the source business values.
         data_tests:
           - not_null

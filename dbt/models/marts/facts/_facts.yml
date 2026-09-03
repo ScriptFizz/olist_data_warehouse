@@ -150,6 +150,12 @@ models:
         data_type: bigint
         description: Number of source review records found for the order.
         data_tests: [not_null]
+      
+      - name: warehouse_updated_at
+        data_type: timestamp
+        description: Latest source-ingestion timestamp affecting this order fact row.
+        data_tests:
+          - not_null
 
   - name: fct_order_items
     description: >
@@ -237,3 +243,9 @@ models:
         data_type: double precision
         description: Additive item price plus freight in BRL.
         data_tests: [not_null]
+
+      - name: warehouse_updated_at
+        data_type: timestamp
+        description: Latest source-ingestion timestamp affecting this order-item fact row.
+        data_tests:
+          - not_null
