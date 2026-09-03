@@ -1875,28 +1875,33 @@ dependencies = [
     { name = "db-dtypes" },
     { name = "faker" },
     { name = "google-cloud-bigquery" },
-    { name = "ipykernel" },
     { name = "kaggle" },
-    { name = "matplotlib" },
-    { name = "mkdocs" },
-    { name = "notebook" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pandera" },
-    { name = "plotly" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pyarrow" },
     { name = "python-dateutil" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
-    { name = "scipy" },
-    { name = "seaborn" },
-    { name = "statsmodels" },
     { name = "tqdm" },
     { name = "typer" },
 ]
 
 [package.dev-dependencies]
+analysis = [
+    { name = "ipykernel" },
+    { name = "matplotlib" },
+    { name = "notebook" },
+    { name = "plotly" },
+    { name = "scipy" },
+    { name = "seaborn" },
+    { name = "statsmodels" },
+]
+dbt = [
+    { name = "dbt-bigquery" },
+    { name = "dbt-postgres" },
+]
 dev = [
     { name = "dbt-bigquery" },
     { name = "dbt-postgres" },
@@ -1907,34 +1912,42 @@ dev = [
     { name = "ruff" },
     { name = "types-pyyaml" },
 ]
+docs = [
+    { name = "mkdocs" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "db-dtypes", specifier = ">=1.4.0,<1.5.0" },
     { name = "faker", specifier = ">=38.2.0,<39.0.0" },
     { name = "google-cloud-bigquery", specifier = ">=3.38.0,<4.0.0" },
-    { name = "ipykernel", specifier = ">=7.1.0,<8.0.0" },
     { name = "kaggle", specifier = ">=1.8.2,<2.0.0" },
-    { name = "matplotlib", specifier = ">=3.10.8,<4.0.0" },
-    { name = "mkdocs", specifier = ">=1.6.1,<2.0.0" },
-    { name = "notebook", specifier = ">=7.5.0,<8.0.0" },
     { name = "numpy", specifier = ">=1.24.4,<2.0.0" },
     { name = "pandas", specifier = ">=2.3.3,<3.0.0" },
     { name = "pandera", specifier = "==0.18.3" },
-    { name = "plotly", specifier = ">=6.5.1,<7.0.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2,<4.0" },
     { name = "pyarrow", specifier = ">=12.0.1,<15.0.0" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0,<3.0.0" },
     { name = "python-dotenv", specifier = ">=1.0,<2.0" },
     { name = "pyyaml", specifier = ">=6.0.3,<7.0.0" },
-    { name = "scipy", specifier = ">=1.16.3,<2.0.0" },
-    { name = "seaborn", specifier = ">=0.13.2,<0.14.0" },
-    { name = "statsmodels", specifier = ">=0.14.6,<0.15.0" },
     { name = "tqdm", specifier = ">=4.67.1,<5.0.0" },
     { name = "typer", specifier = ">=0.20.0,<0.21.0" },
 ]
 
 [package.metadata.requires-dev]
+analysis = [
+    { name = "ipykernel", specifier = ">=7.1.0,<8.0.0" },
+    { name = "matplotlib", specifier = ">=3.10.8,<4.0.0" },
+    { name = "notebook", specifier = ">=7.5.0,<8.0.0" },
+    { name = "plotly", specifier = ">=6.5.1,<7.0.0" },
+    { name = "scipy", specifier = ">=1.16.3,<2.0.0" },
+    { name = "seaborn", specifier = ">=0.13.2,<0.14.0" },
+    { name = "statsmodels", specifier = ">=0.14.6,<0.15.0" },
+]
+dbt = [
+    { name = "dbt-bigquery", specifier = ">=1.9,<2.0" },
+    { name = "dbt-postgres", specifier = ">=1.9,<2.0" },
+]
 dev = [
     { name = "dbt-bigquery", specifier = ">=1.9,<2.0" },
     { name = "dbt-postgres", specifier = ">=1.9,<2.0" },
@@ -1945,6 +1958,7 @@ dev = [
     { name = "ruff", specifier = ">=0.14.8,<0.15.0" },
     { name = "types-pyyaml", specifier = ">=6.0.12,<7.0.0" },
 ]
+docs = [{ name = "mkdocs", specifier = ">=1.6.1,<2.0.0" }]
 
 [[package]]
 name = "opentelemetry-api"
