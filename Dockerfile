@@ -8,6 +8,8 @@ COPY --from=ghcr.io/astral-sh/uv:0.12.9 \
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
+    HOME=/tmp/olist-home \
+    XDG_CONFIG_HOME=/tmp/olist-home/.config \
     PATH="/app/.venv/bin:${PATH}"
 
 WORKDIR /app
@@ -39,6 +41,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 RUN mkdir -p \
     /app/data/raw \
     /app/data/processed \
-    /app/logs
+    /app/logs \
+    /tmp/olist-home \
+    && chmod 1777 /tmp/olist-home
 
 CMD ["olist-check-postgres"]

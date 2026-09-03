@@ -1,16 +1,28 @@
 import logging
 import logging.config
+import os
 import sys
 from pathlib import Path
 
 
-def setup_logging(log_level=logging.INFO):
+def resolve_logs_directory(log_dir: str | Path | None = None) -> Path:
+    """Resolve logs independently of the package installation directory."""
+    configured_directory = log_dir or os.getenv("OLIST_LOG_DIR")
+    if configured_directory is not None:
+        return Path(configured_directory).expanduser()
+
+    return Path.cwd() / "logs"
+
+
+def setup_logging(
+    log_level: int = logging.INFO,
+    log_dir: str | Path | None = None,
+) -> None:
     """
     Define logging configurations for applications.
     """
 
-    project_root = Path(__file__).resolve().parents[3]
-    logs_dir = project_root / "logs"
+    logs_dir = resolve_logs_directory(log_dir)
     logs_dir.mkdir(parents=True, exist_ok=True)
 
     logging_config = {

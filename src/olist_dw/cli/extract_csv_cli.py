@@ -3,16 +3,19 @@ import os
 from typing import Annotated
 
 import typer
-from config.logconfig import setup_logging
 from dotenv import load_dotenv
 
-from olist_dw.etl.extract.extract_csv import configure_kaggle_cli, ingest_data
+from olist_dw.config.logconfig import setup_logging
+from olist_dw.etl.extract.extract_csv import ingest_data
 from olist_dw.etl.utils.utils_methods import load_params
 
 setup_logging()
 logger = logging.getLogger(__name__)
 
-app = typer.Typer(help="ETL: extract dataset from Kaggle")
+app = typer.Typer(
+    help="ETL: extract dataset from Kaggle",
+    pretty_exceptions_show_locals=False,
+)
 
 
 @app.command()
@@ -43,8 +46,6 @@ def run(
 
     if not kaggle_username or not kaggle_key:
         raise ValueError("KAGGLE_USERNAME or KAGGLE_KEY missing in .env file")
-
-    configure_kaggle_cli(username=kaggle_username, key=kaggle_key)
 
     out_dir = out_dir or params["paths"]["raw_data_dir"]
     dataset_name = dataset_name or params["data"]["dataset_name"]

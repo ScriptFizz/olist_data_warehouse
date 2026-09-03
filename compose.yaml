@@ -36,6 +36,9 @@ services:
         condition: service_healthy
     
     environment:
+      KAGGLE_USERNAME: ${KAGGLE_USERNAME:-}
+      KAGGLE_KEY: ${KAGGLE_KEY:-}
+
       POSTGRES_HOST: postgres
       POSTGRES_PORT: "5432"
       POSTGRES_DB: ${POSTGRES_DB:-olist}
@@ -48,12 +51,14 @@ services:
       DBT_RAW_DATABASE: ${POSTGRES_DB:-olist}
       DBT_RAW_SCHEMA: ${POSTGRES_SCHEMA:-raw}
       DBT_POSTGRES_SCHEMA: ${DBT_POSTGRES_SCHEMA:-dbt_dev}
+      OLIST_LOG_DIR: /app/logs
 
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
 
     volumes:
       - ./data:/app/data 
       - ./dbt:/app/dbt 
+      - ./logs:/app/logs
       - ./settings.yaml:/app/settings.yaml:ro
     
     command:

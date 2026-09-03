@@ -1,4 +1,3 @@
-import json
 import logging
 import subprocess
 from pathlib import Path
@@ -7,35 +6,6 @@ from typing import Annotated
 import typer
 
 logger = logging.getLogger(__name__)
-
-
-def configure_kaggle_cli(
-    username: Annotated[str, typer.Option(help="Kaggle username")],
-    key: Annotated[str, typer.Option(help="Kaggle API key of the user")],
-) -> None:
-    """
-    Automatically configure Kaggle CLI
-
-    Args:
-            username (str): Kaggle username
-            key (str): Kaggle API key.
-
-    Returns:
-            None:
-    """
-
-    kaggle_dir = Path.home() / ".kaggle"
-    kaggle_dir.mkdir(exist_ok=True)
-
-    kaggle_config_file = kaggle_dir / "kaggle.json"
-
-    if kaggle_config_file.exists():
-        kaggle_config_file.unlink()
-
-    kaggle_config_file.write_text(json.dumps({"username": username, "key": key}))
-
-    # required permissions
-    kaggle_config_file.chmod(0o600)
 
 
 def ingest_data(
