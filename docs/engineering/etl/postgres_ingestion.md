@@ -173,3 +173,29 @@ should silently perform against an unknown environment.
 After that one-time reset, subsequent loads preserve target tables and are safe
 to rerun. Integration tests avoid this issue by creating isolated schemas for
 every test and dropping them afterward.
+
+## Incremental dbt facts
+
+The PostgreSQL loader incrementally maintains the raw layer, while dbt
+incrementally publishes the two fact tables.
+
+Each fact row contains `warehouse_updated_at`, calculated from the ingestion
+timestamps of every source record that can affect that row.
+
+During an incremental run, dbt compares each candidate row with the existing
+fact row having the same natural key:
+
+- missing keys are inserted;
+- keys with newer source lineage are updated;
+- unchanged or older candidates are ignored.
+
+`fct_orders` merges on `order_id`. `fct_order_items` merges on the composite
+key `(order_id, order_item_id)`.
+
+This supports late changes to historical orders because selection is based on
+source ingestion time rather than order purchase date.
+
+The current intermediate models are views, so PostgreSQL still evaluates their
+source queries during an incremental run. The optimization primarily reduces
+fact-table writes rather than guaranteeing that the warehouse scans only new
+raw records.

@@ -67,5 +67,15 @@ final as (
 
 )
 
-select *
+select final.*
 from final
+
+{% if is_incremental() %}
+
+left join {{ this }} as existing
+    on final.order_id = existing.order_id
+
+where existing.order_id is null
+    or final.warehouse_updated_at > existing.warehouse_updated_at
+
+{% endif %}
