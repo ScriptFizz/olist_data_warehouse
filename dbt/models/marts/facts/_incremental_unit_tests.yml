@@ -1,0 +1,166 @@
+version: 2
+
+unit_tests:
+    - name: test_fct_orders_incremental_selection
+      description: >
+        Incremental execution emits new and more recently ingested orders,
+        while ignoring unchanged and stale candidates.
+      model: fct_orders
+
+      overrides:
+        macros:
+          is_incremental: true
+
+      given:
+        - input: ref('int_orders_enriched')
+          format: dict
+          rows:
+            - order_id: unchanged-order
+              customer_id: customer-1
+              customer_unique_id: buyer-1
+              order_status: delivered
+              order_purchase_ts: "2024-01-01 10:00:00"
+              order_purchase_date: "2024-01-01"
+              order_updated_at: "2024-02-01 10:00:00"
+
+            - order_id: changed-order
+              customer_id: customer-2
+              customer_unique_id: buyer-2
+              order_status: delivered
+              order_purchase_ts: "2024-01-02 10:00:00"
+              order_purchase_date: "2024-01-02"
+              warehouse_updated_at: "2024-02-02 10:00:00"
+
+            - order_id: stale-order
+              customer_id: customer-3
+              customer_unique_id: buyer-3
+              order_status: shipped
+              order_purchase_ts: "2024-01-03 10:00:00"
+              order_purchase_date: "2024-01-03"
+              warehouse_updated_at: "2024-01-01 10:00:00"
+
+            - order_id: new-order
+              customer_id: customer-4
+              customer_unique_id: buyer-4
+              order_status: created
+              order_purchase_ts: "2024-01-04 10:00:00"
+              order_purchase_date: "2024-01-04"
+              warehouse_updated_at: "2024-02-03 10:00:00"
+
+        - input: this
+          format: dict
+          rows:
+            - order_id: unchanged-order
+              warehouse_updated_at: "2024-02-01 10:00:00"
+
+            - order_id: changed-order
+              warehouse_updated_at: "2024-02-01 10:00:00"
+
+            - order_id: stale-order
+              warehouse_updated_at: "2024-02-01 10:00:00"
+
+      expect:
+        format: dict
+        rows:
+          - order_id: changed-order
+            order_status: delivered
+            warehouse_updated_at: "2024-02-02 10:00:00"
+
+          - order_id: new-order
+            order_status: created
+            warehouse_updated_at: "2024-02-03 10:00:00"
+
+    - name: test_fct_order_items_incremental_selection
+      description: >
+        Incremental execution compares order-item rows using their composite key
+        and emits only new or more recently ingested rows.
+      model: fct_order_items
+
+      overrides:
+        macros:
+          is_incremental: true
+
+      given:
+        - input: ref('stg_order_items')
+          format: dict
+          rows:
+            - order_id: order-1
+              order_item_id: 1
+              product_id: product-1
+              seller_id: seller-1
+              shipping_limit_ts: "2024-01-05 10:00:00"
+              item_price_brl: 10.0
+              freight_value_brl: 2.0
+              source_ingested_at: "2024-02-01 10:00:00"
+
+            - order_id: order-1
+              order_item_id: 2
+              product_id: product-2
+              seller_id: seller-1
+              shipping_limit_ts: "2024-01-05 10:00:00"
+              item_price_brl: 20.0
+              freight_value_brl: 3.0
+              source_ingested_at: "2024-02-03 10:00:00"
+
+            - order_id: order-1
+              order_item_id: 3
+              product_id: product-3
+              seller_id: seller-1
+              shipping_limit_ts: "2024-01-05 10:00:00"
+              item_price_brl: 30.0
+              freight_value_brl: 4.0
+              source_ingested_at: "2024-01-01 10:00:00"
+
+            - order_id: order-1
+              order_item_id: 4
+              product_id: product-4
+              seller_id: seller-1
+              shipping_limit_ts: "2024-01-05 10:00:00"
+              item_price_brl: 40.0
+              freight_value_brl: 5.0
+              source_ingested_at: "2024-02-04 10:00:00"
+
+        - input: ref('int_orders_enriched')
+          format: dict
+          rows:
+            - order_id: order-1
+              customer_id: customer-1
+              customer_unique_id: buyer-1
+              order_status: delivered
+              order_purchase_ts: "2024-01-01 10:00:00"
+              order_purchase_date: "2024-01-01"
+              is_delivered: true
+              order_updated_at: "2024-01-15 10:00:00"
+              customer_updated_at: "2024-01-15 10:00:00"
+
+        - input: this
+          format: dict
+          rows:
+            - order_id: order-1
+              order_item_id: 1
+              warehouse_updated_at: "2024-02-01 10:00:00"
+
+            - order_id: order-1
+              order_item_id: 2
+              warehouse_updated_at: "2024-02-01 10:00:00"
+
+            - order_id: order-1
+              order_item_id: 3
+              warehouse_updated_at: "2024-02-01 10:00:00"
+
+      expect:
+        format: dict
+        rows:
+          - order_id: order-1
+            order_item_id: 2
+            item_price_brl: 20.0
+            freight_value_brl: 3.0
+            item_total_brl: 23.0
+            warehouse_updated_at: "2024-02-03 10:00:00"
+
+          - order_id: order-1
+            order_item_id: 4
+            item_price_brl: 40.0
+            freight_value_brl: 5.0
+            item_total_brl: 45.0
+            warehouse_updated_at: "2024-02-04 10:00:00"
