@@ -3,7 +3,18 @@ site_name: Olist Data Warehouse
 nav:
   - Home: index.md
   - Engineering:
-      - ETL: engineering/etl/index.md
+      - ETL:
+          - Overview: engineering/etl/index.md
+          - Extraction: engineering/etl/extract.md
+          - Transformation: engineering/etl/transform.md
+          - Loading: engineering/etl/load.md
+          - PostgreSQL ingestion: engineering/etl/postgres_ingestion.md
+      - CLI:
+          - Extract command: engineering/cli/extract_cli.md
+          - Transform command: engineering/cli/transform_cli.md
+          - Load command: engineering/cli/load_cli.md
+      - Runtime:
+          - Docker: engineering/runtime/docker.md
       - Decisions:
           - PostgreSQL raw loading: engineering/decisions/001-postgres-raw-loading-strategy.md
   - Metrics:

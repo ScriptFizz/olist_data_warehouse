@@ -41,9 +41,59 @@
                                 <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Engineering</a>
                                 <ul class="dropdown-menu">
                                     
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">ETL</a>
+    <ul class="dropdown-menu">
+            
 <li>
-    <a href="../../etl/" class="dropdown-item">ETL</a>
+    <a href="../../etl/" class="dropdown-item">Overview</a>
 </li>
+            
+<li>
+    <a href="../../etl/extract/" class="dropdown-item">Extraction</a>
+</li>
+            
+<li>
+    <a href="../../etl/transform/" class="dropdown-item">Transformation</a>
+</li>
+            
+<li>
+    <a href="../../etl/load/" class="dropdown-item">Loading</a>
+</li>
+            
+<li>
+    <a href="../../etl/postgres_ingestion/" class="dropdown-item">PostgreSQL ingestion</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">CLI</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../cli/extract_cli/" class="dropdown-item">Extract command</a>
+</li>
+            
+<li>
+    <a href="../../cli/transform_cli/" class="dropdown-item">Transform command</a>
+</li>
+            
+<li>
+    <a href="../../cli/load_cli/" class="dropdown-item">Load command</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Runtime</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../runtime/docker/" class="dropdown-item">Docker</a>
+</li>
+    </ul>
+  </li>
                                     
   <li class="dropdown-submenu">
     <a href="#" class="dropdown-item">Decisions</a>
@@ -74,7 +124,7 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../../etl/" class="nav-link">
+                                <a rel="prev" href="../../runtime/docker/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
@@ -144,7 +194,7 @@
 
 <h1 id="adr-001-postgresql-raw-loading-strategy">ADR 001: PostgreSQL raw loading strategy</h1>
 <h2 id="status">Status</h2>
-<p>Accepted. Implementation in progress.</p>
+<p>Implemented.</p>
 <h2 id="context">Context</h2>
 <p>The Olist source is distributed as a static collection of complete CSV files,
 but the portfolio pipeline should also demonstrate credible incremental batch
@@ -216,14 +266,13 @@ behavior.</p>
 </table>
 <p>The original Olist CSV collection is treated as a bootstrap snapshot. Later
 loads may contain new or changed records for upsert-managed tables.</p>
-<p>Every published row will contain:</p>
+<p>Every published row contains:</p>
 <ul>
-<li><code>_ingestion_batch_id</code>;</li>
+<li><code>_batch_id</code>;</li>
 <li><code>_ingested_at</code>;</li>
-<li><code>_record_hash</code>;</li>
-<li><code>_warehouse_updated_at</code>.</li>
+<li><code>_record_hash</code>.</li>
 </ul>
-<p>Each run will be recorded in an ingestion audit table.</p>
+<p>Each run is recorded in a separate ingestion audit table.</p>
 <h2 id="idempotency">Idempotency</h2>
 <p>For upsert tables:</p>
 <ul>
@@ -240,11 +289,12 @@ loads may contain new or changed records for upsert-managed tables.</p>
 <ul>
 <li>the complete table is replaced transactionally.</li>
 </ul>
-<p>Replaying an identical batch must not create duplicates or change
-<code>_warehouse_updated_at</code>.</p>
+<p>Replaying an identical batch does not create duplicates or change its existing
+row metadata.</p>
 <h2 id="failure-recovery">Failure recovery</h2>
-<p>All staging, audit, and publication operations occur in one PostgreSQL
-transaction. If any table fails:</p>
+<p>Raw-table staging and publication occur in one PostgreSQL transaction. The
+audit ledger uses separate committed transactions so that failure evidence
+survives a raw publication rollback. If any table fails:</p>
 <ul>
 <li>no target table changes are committed;</li>
 <li>the ingestion run is recorded as failed in a separate failure-handling step;</li>
@@ -260,9 +310,9 @@ transaction. If any table fails:</p>
 <p>The initial implementation supports inserts and updates. Tombstone processing
 is future work.</p>
 <h2 id="dbt-impact">dbt impact</h2>
-<p>Incremental dbt models must use affected business keys or
-<code>_warehouse_updated_at</code>; they must not rely only on the maximum business event
-date. This allows late changes to historical orders to be processed.</p>
+<p>Incremental dbt models must use affected business keys or <code>_ingested_at</code>; they
+must not rely only on the maximum business event date. This allows late changes
+to historical orders to be processed.</p>
 <h2 id="consequences">Consequences</h2>
 <p>Benefits:</p>
 <ul>

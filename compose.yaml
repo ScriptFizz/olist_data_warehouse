@@ -63,7 +63,51 @@ services:
     
     command:
       - olist-check-postgres
+  
+  kestra-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kestra
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: ${KESTRA_DB_PASSWORD:?KESTRA_DB_PASSWORD must be set}
+    volumes:
+      - kestra_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\"",
+      ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
 
+  kestra:
+    image: kestra/kestra:v1.3.37
+    command:
+      - server
+      - standalone
+      - --config
+      - /etc/kestra/application.yml
+      - --flow-path 
+      - /app/flows
+    depends_on:
+      kestra-postgres:
+        condition: service_healthy
+    environment:
+      KESTRA_DB_PASSWORD: ${KESTRA_DB_PASSWORD:?KESTRA_DB_PASSWORD must be set}
+    ports:
+      - "127.0.0.1:${KESTRA_PORT:-8080}:8080"
+    volumes:
+      - ./kestra/config/application.yml:/etc/kestra/application.yml:ro
+      - ./kestra/flows:/app/flows:ro
+      - kestra_storage:/app/storage
+      - kestra_working_directory:/tmp/kestra-wd
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  kestra_postgres_data:
+  kestra_storage:
+  kestra_working_directory:

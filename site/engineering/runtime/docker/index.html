@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../../../img/favicon.ico">
-        <title>Extraction - Olist Data Warehouse</title>
+        <title>Docker - Olist Data Warehouse</title>
         <link href="../../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../../css/fontawesome.min.css" rel="stylesheet">
         <link href="../../../css/brands.min.css" rel="stylesheet">
@@ -46,23 +46,23 @@
     <ul class="dropdown-menu">
             
 <li>
-    <a href="../" class="dropdown-item">Overview</a>
+    <a href="../../etl/" class="dropdown-item">Overview</a>
 </li>
             
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Extraction</a>
+    <a href="../../etl/extract/" class="dropdown-item">Extraction</a>
 </li>
             
 <li>
-    <a href="../transform/" class="dropdown-item">Transformation</a>
+    <a href="../../etl/transform/" class="dropdown-item">Transformation</a>
 </li>
             
 <li>
-    <a href="../load/" class="dropdown-item">Loading</a>
+    <a href="../../etl/load/" class="dropdown-item">Loading</a>
 </li>
             
 <li>
-    <a href="../postgres_ingestion/" class="dropdown-item">PostgreSQL ingestion</a>
+    <a href="../../etl/postgres_ingestion/" class="dropdown-item">PostgreSQL ingestion</a>
 </li>
     </ul>
   </li>
@@ -90,7 +90,7 @@
     <ul class="dropdown-menu">
             
 <li>
-    <a href="../../runtime/docker/" class="dropdown-item">Docker</a>
+    <a href="./" class="dropdown-item active" aria-current="page">Docker</a>
 </li>
     </ul>
   </li>
@@ -124,12 +124,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../" class="nav-link">
+                                <a rel="prev" href="../../cli/load_cli/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../transform/" class="nav-link">
+                                <a rel="next" href="../../decisions/001-postgres-raw-loading-strategy/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -151,8 +151,40 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#extract-pipeline" class="nav-link">Extract Pipeline</a>
+            <li class="nav-item" data-bs-level="1"><a href="#reproducible-container-execution" class="nav-link">Reproducible container execution</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#services" class="nav-link">Services</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#initial-setup" class="nav-link">Initial setup</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#build-and-validate-the-runtime" class="nav-link">Build and validate the runtime</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#run-the-complete-local-pipeline" class="nav-link">Run the complete local pipeline</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#safe-re-execution" class="nav-link">Safe re-execution</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#inspect-the-result" class="nav-link">Inspect the result</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#cleanup" class="nav-link">Cleanup</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#bigquery-target" class="nav-link">BigQuery target</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -160,12 +192,144 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="extract-pipeline">Extract Pipeline</h1>
-<p>This section documents all extraction stages</p>
-<hr />
-<p>::: src.etl.extract.extract_csv</p>
-<hr />
-<p>::: src.etl.extract.extract_exchange_rates</p></div>
+<h1 id="reproducible-container-execution">Reproducible container execution</h1>
+<p>The project provides a reusable application image containing the packaged
+Python pipeline and dbt adapters. PostgreSQL runs as a separate Compose service.</p>
+<p>BigQuery remains external and is not containerized.</p>
+<h2 id="services">Services</h2>
+<h3 id="postgres"><code>postgres</code></h3>
+<p>Runs PostgreSQL 16 and persists warehouse data in the <code>postgres_data</code> named
+volume.</p>
+<ul>
+<li>From the host: <code>localhost:5433</code></li>
+<li>From another Compose container: <code>postgres:5432</code></li>
+</ul>
+<h3 id="pipeline"><code>pipeline</code></h3>
+<p>A short-lived command environment containing:</p>
+<ul>
+<li>the installed <code>olist_dw</code> Python package;</li>
+<li>the ETL command-line applications;</li>
+<li>dbt Core;</li>
+<li>the PostgreSQL and BigQuery dbt adapters.</li>
+</ul>
+<p>The service belongs to the <code>tools</code> Compose profile because it is used for
+one-off commands rather than as a continuously running process.</p>
+<h2 id="initial-setup">Initial setup</h2>
+<p>Create the local environment file:</p>
+<pre><code class="language-bash">cp .env.example .env
+</code></pre>
+<p>Set at least:</p>
+<pre><code class="language-dotenv">POSTGRES_DB=olist
+POSTGRES_USER=olist
+POSTGRES_PASSWORD=replace-with-a-local-password
+POSTGRES_PORT=5433
+
+KAGGLE_USERNAME=your-kaggle-username
+KAGGLE_KEY=your-kaggle-api-key
+</code></pre>
+<p>Do not commit <code>.env</code> or real credentials.</p>
+<p>On Linux, export the host user's numeric identifiers so files created through
+bind mounts remain owned by the host user:</p>
+<pre><code class="language-bash">export LOCAL_UID=&quot;$(id -u)&quot;
+export LOCAL_GID=&quot;$(id -g)&quot;
+</code></pre>
+<p>These values may also be added to <code>.env</code>.</p>
+<h2 id="build-and-validate-the-runtime">Build and validate the runtime</h2>
+<p>Validate the Compose configuration:</p>
+<pre><code class="language-bash">docker compose config --quiet
+</code></pre>
+<p>Build the pipeline image:</p>
+<pre><code class="language-bash">docker compose build pipeline
+</code></pre>
+<p>Run the lightweight container smoke test:</p>
+<pre><code class="language-bash">./scripts/container_smoke_test.sh
+</code></pre>
+<p>The smoke test verifies:</p>
+<ul>
+<li>Compose configuration;</li>
+<li>image construction;</li>
+<li>installation of the Python package;</li>
+<li>installation of dbt;</li>
+<li>PostgreSQL readiness;</li>
+<li>connectivity from the pipeline container.</li>
+</ul>
+<p>It intentionally does not download the Kaggle dataset.</p>
+<h2 id="run-the-complete-local-pipeline">Run the complete local pipeline</h2>
+<p>Start PostgreSQL:</p>
+<pre><code class="language-bash">docker compose up -d postgres
+</code></pre>
+<p>Download the raw source files:</p>
+<pre><code class="language-bash">docker compose run --rm --no-deps pipeline \
+  olist-extract \
+  --out-dir data/raw
+</code></pre>
+<p>Transform and validate the source data:</p>
+<pre><code class="language-bash">docker compose run --rm --no-deps pipeline \
+  olist-transform \
+  --raw-data-dir data/raw \
+  --processed-data-dir data/processed
+</code></pre>
+<p>Load the validated data into PostgreSQL:</p>
+<pre><code class="language-bash">docker compose run --rm pipeline \
+  olist-load-postgres \
+  --processed-dir data/processed
+</code></pre>
+<p>Build and test the dbt warehouse:</p>
+<pre><code class="language-bash">docker compose run --rm pipeline \
+  dbt build \
+  --project-dir dbt \
+  --profiles-dir dbt \
+  --target postgres_dev
+</code></pre>
+<p>The <code>pipeline</code> service receives PostgreSQL connection settings through
+environment variables and connects over the Compose network.</p>
+<h2 id="safe-re-execution">Safe re-execution</h2>
+<p>The commands are designed to be run again safely:</p>
+<ul>
+<li>transformation rewrites deterministic processed outputs;</li>
+<li>raw PostgreSQL publication uses table-specific loading strategies;</li>
+<li>a failed multi-table publication is rolled back;</li>
+<li>ingestion attempts are recorded in the audit schema;</li>
+<li>unchanged upsert records are not rewritten;</li>
+<li>dbt facts update incrementally from source watermarks.</li>
+</ul>
+<p>Re-running the complete workflow should not duplicate source records.</p>
+<h2 id="inspect-the-result">Inspect the result</h2>
+<p>List tables:</p>
+<pre><code class="language-bash">docker compose exec postgres \
+  psql \
+  -U &quot;$POSTGRES_USER&quot; \
+  -d &quot;$POSTGRES_DB&quot; \
+  -c &quot;\dt raw.*&quot;
+</code></pre>
+<p>Inspect dbt relations:</p>
+<pre><code class="language-bash">docker compose exec postgres \
+  psql \
+  -U &quot;$POSTGRES_USER&quot; \
+  -d &quot;$POSTGRES_DB&quot; \
+  -c &quot;\dt dbt_dev.*&quot;
+</code></pre>
+<p>Inspect ingestion runs:</p>
+<pre><code class="language-bash">docker compose exec postgres \
+  psql \
+  -U &quot;$POSTGRES_USER&quot; \
+  -d &quot;$POSTGRES_DB&quot; \
+  -c &quot;select * from pipeline_metadata.ingestion_runs order by started_at desc limit 10;&quot;
+</code></pre>
+<h2 id="cleanup">Cleanup</h2>
+<p>Stop the containers while preserving PostgreSQL data:</p>
+<pre><code class="language-bash">docker compose down
+</code></pre>
+<p>Removing the named volume also deletes the local PostgreSQL warehouse:</p>
+<pre><code class="language-bash">docker compose down --volumes
+</code></pre>
+<p>Use the second command only when a completely clean database is intentional.</p>
+<h2 id="bigquery-target">BigQuery target</h2>
+<p>The same dbt project retains a <code>bigquery_dev</code> target. BigQuery credentials are
+not included in the image and must be supplied at runtime.</p>
+<p>PostgreSQL is the default local development target because it provides an
+inexpensive and reproducible development environment. BigQuery remains the
+optional cloud deployment target.</p></div>
             </div>
         </div>
 
