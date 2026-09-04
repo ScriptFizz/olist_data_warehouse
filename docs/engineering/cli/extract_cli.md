@@ -1,15 +1,11 @@
-# Extract CLI
+# Extract command
 
-This section documents the extraction command line code
+```text
+olist-extract [--out-dir PATH] [--dataset-name OWNER/DATASET]
+```
 
----
+If options are omitted, values come from `settings.yaml`. Kaggle credentials
+come from environment variables or `.env`.
 
-## Data ingestion cli
-
-::: src.cli.extract_csv_cli
-
----
-
-## Exchange rates cli
-
-::: src.cli.extract_rates_cli
+The command downloads and unpacks the source files. It does not transform or
+publish them.

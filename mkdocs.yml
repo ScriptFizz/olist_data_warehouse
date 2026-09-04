@@ -1,8 +1,13 @@
 site_name: Olist Data Warehouse
+site_description: Production-oriented analytics engineering on the Olist dataset
+repo_url: https://github.com/ScriptFizz/olist_data_warehouse
 
 nav:
   - Home: index.md
   - Engineering:
+      - Architecture: engineering/architecture.md
+      - dbt warehouse: engineering/warehouse.md
+      - Testing and CI: engineering/testing.md
       - ETL:
           - Overview: engineering/etl/index.md
           - Extraction: engineering/etl/extract.md
@@ -20,5 +25,3 @@ nav:
       - Decisions:
           - PostgreSQL raw loading: engineering/decisions/001-postgres-raw-loading-strategy.md
           - Kestra local execution: engineering/decisions/002-kestra-local-execution.md
-  - Metrics:
-      - Customer KPIs: metrics/customer_kpis.md

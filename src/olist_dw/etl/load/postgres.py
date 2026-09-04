@@ -12,7 +12,7 @@ from psycopg import sql
 from olist_dw.config.postgres import PostgresSettings
 from olist_dw.etl.load.ingestion_batch import (
     IngestionBatch,
-    compute_record_hashes,
+    attach_ingestion_metadata,
 )
 from olist_dw.etl.load.pandera_to_postgres import (
     PostgresColumn,
@@ -32,19 +32,6 @@ METADATA_COLUMNS = (
     ),
     PostgresColumn("_record_hash", "TEXT", False),
 )
-
-
-def _attach_ingestion_metadata(
-    dataframe: pd.DataFrame,
-    batch: IngestionBatch,
-) -> pd.DataFrame:
-    result = dataframe.copy()
-
-    result["_batch_id"] = str(batch.batch_id)
-    result["_ingested_at"] = batch.started_at
-    result["_record_hash"] = compute_record_hashes(dataframe)
-
-    return result
 
 
 @dataclass(frozen=True)
@@ -177,7 +164,7 @@ def load_tables_to_postgres(
                 cursor=cursor,
                 schema_name=settings.schema,
                 table_name=staging_tables[table_name],
-                dataframe=_attach_ingestion_metadata(dataframe, batch),
+                dataframe=attach_ingestion_metadata(dataframe, batch),
                 columns=columns,
             )
 
