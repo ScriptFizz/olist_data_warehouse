@@ -102,6 +102,10 @@
 <li>
     <a href="../../decisions/001-postgres-raw-loading-strategy/" class="dropdown-item">PostgreSQL raw loading</a>
 </li>
+            
+<li>
+    <a href="../../decisions/002-kestra-local-execution/" class="dropdown-item">Kestra local execution</a>
+</li>
     </ul>
   </li>
                                 </ul>
@@ -162,6 +166,10 @@
               </ul>
             </li>
             <li class="nav-item" data-bs-level="2"><a href="#build-and-validate-the-runtime" class="nav-link">Build and validate the runtime</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#start-kestra-and-deploy-flows" class="nav-link">Start Kestra and deploy flows</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -226,6 +234,10 @@ POSTGRES_PORT=5433
 
 KAGGLE_USERNAME=your-kaggle-username
 KAGGLE_KEY=your-kaggle-api-key
+
+KESTRA_DB_PASSWORD=replace-with-a-local-database-password
+KESTRA_USERNAME=admin@localhost
+KESTRA_PASSWORD=replace-with-a-local-admin-password
 </code></pre>
 <p>Do not commit <code>.env</code> or real credentials.</p>
 <p>On Linux, export the host user's numeric identifiers so files created through
@@ -254,6 +266,17 @@ export LOCAL_GID=&quot;$(id -g)&quot;
 <li>connectivity from the pipeline container.</li>
 </ul>
 <p>It intentionally does not download the Kaggle dataset.</p>
+<h2 id="start-kestra-and-deploy-flows">Start Kestra and deploy flows</h2>
+<p>Kestra flow definitions are stored under <code>kestra/flows</code>. Start the local
+control plane and create or update all repository-managed flows with:</p>
+<pre><code class="language-bash">./scripts/deploy_kestra_flows.sh
+</code></pre>
+<p>The deployment is a separate step so flows using external plugins are parsed
+only after the Kestra server and its bundled plugins are fully initialized.
+The local UI is available at <a href="http://localhost:8080">http://localhost:8080</a>.</p>
+<p>The deployment command authenticates using <code>KESTRA_USERNAME</code> and
+<code>KESTRA_PASSWORD</code> from the untracked <code>.env</code> file. These credentials are passed
+through the Kestra container environment and are not stored in flow YAML.</p>
 <h2 id="run-the-complete-local-pipeline">Run the complete local pipeline</h2>
 <p>Start PostgreSQL:</p>
 <pre><code class="language-bash">docker compose up -d postgres

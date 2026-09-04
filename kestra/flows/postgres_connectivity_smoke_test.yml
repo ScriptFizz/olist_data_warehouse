@@ -1,0 +1,24 @@
+id: postgres_connectivity_smoke_test
+namespace: olist.system
+
+description: |
+  Verifies that a disposable pipeline container can connect to the local
+  PostgreSQL warehouse through the Compose network. No database state is
+  modified.
+
+tasks:
+  - id: check_postgres
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: olist-data-warehouse-pipeline:local
+    pullPolicy: NEVER
+    networkMode: olist-data-warehouse_default
+    env:
+      POSTGRES_HOST: "{{ envs.postgres_host }}"
+      POSTGRES_PORT: "{{ envs.postgres_port }}"
+      POSTGRES_DB: "{{ envs.postgres_db }}"
+      POSTGRES_USER: "{{ envs.postgres_user }}"
+      POSTGRES_PASSWORD: "{{ secret('POSTGRES_PASSWORD') }}"
+      POSTGRES_SCHEMA: "{{ envs.postgres_schema }}"
+      POSTGRES_AUDIT_SCHEMA: "{{ envs.postgres_audit_schema }}"
+    commands:
+      - olist-check-postgres

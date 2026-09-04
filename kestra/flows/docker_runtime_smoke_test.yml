@@ -1,0 +1,18 @@
+id: docker_runtime_smoke_test
+namespace: olist.system
+
+description: |
+  Verifies that Kestra can launch the project's prebuilt pipeline image
+  through the local Docker daemon. This flow performs no data mutation.
+
+tasks:
+  - id: verify_pipeline_runtime
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: olist-data-warehouse-pipeline:local
+    pullPolicy: NEVER
+    commands:
+      - python
+      - -c
+      - >-
+        import olist_dw;
+        print(f"olist_dw imported successfully from {olist_dw.__file__}")

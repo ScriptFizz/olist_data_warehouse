@@ -17,5 +17,6 @@ nav:
           - Docker: engineering/runtime/docker.md
       - Decisions:
           - PostgreSQL raw loading: engineering/decisions/001-postgres-raw-loading-strategy.md
+          - Kestra local execution: engineering/decisions/002-kestra-local-execution.md
   - Metrics:
       - Customer KPIs: metrics/customer_kpis.md

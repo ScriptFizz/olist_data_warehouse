@@ -24,6 +24,7 @@ services:
     restart: unless-stopped
 
   pipeline:
+    image: olist-data-warehouse-pipeline:local
     build:
       context: .
       dockerfile: Dockerfile
@@ -85,18 +86,27 @@ services:
 
   kestra:
     image: kestra/kestra:v1.3.37
+    user: root
     command:
       - server
       - standalone
       - --config
       - /etc/kestra/application.yml
-      - --flow-path 
-      - /app/flows
     depends_on:
       kestra-postgres:
         condition: service_healthy
     environment:
       KESTRA_DB_PASSWORD: ${KESTRA_DB_PASSWORD:?KESTRA_DB_PASSWORD must be set}
+      OLIST_KESTRA_USERNAME: ${KESTRA_USERNAME:?KESTRA_USERNAME must be set}
+      OLIST_KESTRA_PASSWORD: ${KESTRA_PASSWORD:?KESTRA_PASSWORD must be set}
+      ENV_POSTGRES_HOST: postgres
+      ENV_POSTGRES_PORT: "5432"
+      ENV_POSTGRES_DB: ${POSTGRES_DB:-olist}
+      ENV_POSTGRES_USER: ${POSTGRES_USER:-olist}
+      ENV_POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-raw}
+      ENV_POSTGRES_AUDIT_SCHEMA: ${POSTGRES_AUDIT_SCHEMA:-pipeline_metadata}
+
+      SECRET_POSTGRES_PASSWORD: ${KESTRA_POSTGRES_PASSWORD_BASE64:?KESTRA_POSTGRES_PASSWORD_BASE64 must be set}
     ports:
       - "127.0.0.1:${KESTRA_PORT:-8080}:8080"
     volumes:
@@ -104,6 +114,7 @@ services:
       - ./kestra/flows:/app/flows:ro
       - kestra_storage:/app/storage
       - kestra_working_directory:/tmp/kestra-wd
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
 volumes:

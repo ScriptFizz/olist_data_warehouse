@@ -8,7 +8,8 @@ datasources:
 kestra:
   server:
     basic-auth:
-      enabled: false
+      username: ${OLIST_KESTRA_USERNAME}
+      password: ${OLIST_KESTRA_PASSWORD}
 
   repository:
     type: postgres

@@ -45,6 +45,10 @@ POSTGRES_PORT=5433
 
 KAGGLE_USERNAME=your-kaggle-username
 KAGGLE_KEY=your-kaggle-api-key
+
+KESTRA_DB_PASSWORD=replace-with-a-local-database-password
+KESTRA_USERNAME=admin@localhost
+KESTRA_PASSWORD=replace-with-a-local-admin-password
 ```
 
 Do not commit `.env` or real credentials.
@@ -89,6 +93,23 @@ The smoke test verifies:
 - connectivity from the pipeline container.
 
 It intentionally does not download the Kaggle dataset.
+
+## Start Kestra and deploy flows
+
+Kestra flow definitions are stored under `kestra/flows`. Start the local
+control plane and create or update all repository-managed flows with:
+
+```bash
+./scripts/deploy_kestra_flows.sh
+```
+
+The deployment is a separate step so flows using external plugins are parsed
+only after the Kestra server and its bundled plugins are fully initialized.
+The local UI is available at <http://localhost:8080>.
+
+The deployment command authenticates using `KESTRA_USERNAME` and
+`KESTRA_PASSWORD` from the untracked `.env` file. These credentials are passed
+through the Kestra container environment and are not stored in flow YAML.
 
 ## Run the complete local pipeline
 
