@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../../img/favicon.ico">
+        <title>PostgreSQL ingestion - Olist Data Warehouse</title>
+        <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../../css/brands.min.css" rel="stylesheet">
+        <link href="../../../css/solid.min.css" rel="stylesheet">
+        <link href="../../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../../..">Olist Data Warehouse</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Engineering</a>
+                                <ul class="dropdown-menu">
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">ETL</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../" class="dropdown-item">Overview</a>
+</li>
+            
+<li>
+    <a href="../extract/" class="dropdown-item">Extraction</a>
+</li>
+            
+<li>
+    <a href="../transform/" class="dropdown-item">Transformation</a>
+</li>
+            
+<li>
+    <a href="../load/" class="dropdown-item">Loading</a>
+</li>
+            
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">PostgreSQL ingestion</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">CLI</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../cli/extract_cli/" class="dropdown-item">Extract command</a>
+</li>
+            
+<li>
+    <a href="../../cli/transform_cli/" class="dropdown-item">Transform command</a>
+</li>
+            
+<li>
+    <a href="../../cli/load_cli/" class="dropdown-item">Load command</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Runtime</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../runtime/docker/" class="dropdown-item">Docker</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Orchestration</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../orchestration/kestra/" class="dropdown-item">Kestra</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Decisions</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../decisions/001-postgres-raw-loading-strategy/" class="dropdown-item">PostgreSQL raw loading</a>
+</li>
+            
+<li>
+    <a href="../../decisions/002-kestra-local-execution/" class="dropdown-item">Kestra local execution</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Metrics</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../../metrics/customer_kpis/" class="dropdown-item">Customer KPIs</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../load/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../../cli/extract_cli/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#postgresql-ingestion-and-publication" class="nav-link">PostgreSQL ingestion and publication</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#the-main-idea" class="nav-link">The main idea</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#responsibilities-by-component" class="nav-link">Responsibilities by component</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#the-three-publication-strategies" class="nav-link">The three publication strategies</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#why-staging-is-necessary" class="nav-link">Why staging is necessary</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#what-idempotency-means-here" class="nav-link">What idempotency means here</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#current-deletion-boundary" class="nav-link">Current deletion boundary</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#local-schema-compatibility" class="nav-link">Local schema compatibility</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#incremental-dbt-facts" class="nav-link">Incremental dbt facts</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="postgresql-ingestion-and-publication">PostgreSQL ingestion and publication</h1>
+<p>This document explains how a validated group of Olist tables becomes a safe,
+auditable PostgreSQL raw-layer batch. It is a learning guide to the current
+implementation rather than a list of future intentions.</p>
+<h2 id="the-main-idea">The main idea</h2>
+<p>A load is treated as one batch containing all nine processed Olist tables.
+The pipeline first validates every table, assigns the batch an identity, stages
+all rows, and only then changes the public raw tables.</p>
+<pre><code class="language-text">processed CSV files
+        |
+        v
+Pandera and dataset validation
+        |
+        v
+IngestionBatch + RUNNING audit row
+        |
+        v
+COPY every table into private staging tables
+        |
+        v
+publish every table in one transaction
+   |                         |
+ success                   failure
+   |                         |
+ commit raw tables         rollback raw tables
+   |                         |
+ SUCCEEDED audit row       FAILED audit row
+</code></pre>
+<p>The audit writes use independent database transactions. This separation is
+important: if the raw transaction fails, its rollback must not erase the record
+that explains that an ingestion attempt failed.</p>
+<h2 id="responsibilities-by-component">Responsibilities by component</h2>
+<h3 id="olist_tablespy-the-table-registry"><code>olist_tables.py</code>: the table registry</h3>
+<p><code>TABLES</code> is the central declaration of what each Olist dataset means to the
+pipeline. Each <code>TableConfig</code> connects a filename, its Pandera schemas, its
+transformation function, and its publication strategy.</p>
+<p>This prevents the CLI and database loader from maintaining separate lists of
+tables and gradually disagreeing with one another.</p>
+<h3 id="tablespy-loading-policy-types"><code>tables.py</code>: loading policy types</h3>
+<p><code>LoadStrategy</code> defines the three supported publication behaviors.
+<code>TableConfig</code> validates policy at program startup. For example, an UPSERT table
+must declare a business key, while a snapshot table must not declare one.</p>
+<p>These checks turn configuration mistakes into early Python errors instead of
+incorrect database loads.</p>
+<h3 id="ingestion_batchpy-batch-and-record-identity"><code>ingestion_batch.py</code>: batch and record identity</h3>
+<p><code>IngestionBatch</code> describes one execution attempt:</p>
+<ul>
+<li><code>batch_id</code> is a new UUID for every attempt;</li>
+<li><code>source_fingerprint</code> identifies the input content;</li>
+<li><code>started_at</code> supplies a consistent UTC timestamp;</li>
+<li>row and table counts describe the input volume.</li>
+</ul>
+<p>Two retries of identical files have different batch IDs but the same source
+fingerprint. That distinction answers two different questions: “Which run did
+this?” and “Was its input the same?”</p>
+<p><code>compute_record_hashes()</code> creates a SHA-256 identity from each row's source
+values. Metadata columns are excluded so a retry produces the same record hash.
+<code>compute_batch_fingerprint()</code> combines sorted table names and sorted record
+hashes, making the result independent of dataframe and table iteration order.</p>
+<h3 id="postgres_auditpy-the-durable-run-ledger"><code>postgres_audit.py</code>: the durable run ledger</h3>
+<p>The <code>ingestion_runs</code> table records <code>running</code>, <code>succeeded</code>, or <code>failed</code> for each
+batch. <code>start_ingestion_run()</code> commits <code>running</code> before raw publication begins.
+<code>finish_ingestion_run()</code> later records completion and, for failures, only the
+exception type. It intentionally avoids storing exception messages that could
+contain credentials or sensitive source values.</p>
+<h3 id="postgrespy-physical-database-loading"><code>postgres.py</code>: physical database loading</h3>
+<p><code>load_tables_to_postgres()</code> owns database mechanics, not source-file reading or
+business validation. It:</p>
+<ol>
+<li>checks that dataframes and registry entries match;</li>
+<li>acquires a transaction-scoped advisory lock, preventing overlapping writers
+   from publishing to the same raw schema;</li>
+<li>creates target tables and required unique indexes;</li>
+<li>adds <code>_batch_id</code>, <code>_ingested_at</code>, and <code>_record_hash</code> to copied data;</li>
+<li>uses PostgreSQL <code>COPY</code> to load uniquely named staging tables efficiently;</li>
+<li>publishes each staging table according to its configured strategy;</li>
+<li>drops staging tables and commits everything together.</li>
+</ol>
+<p>The context-managed Psycopg connection commits when the block succeeds and
+rolls back when an exception escapes. Staging tables are created in that same
+transaction, so a rollback removes them too.</p>
+<h3 id="load_postgres_clipy-application-workflow"><code>load_postgres_cli.py</code>: application workflow</h3>
+<p>The CLI coordinates the components. It reads configuration and files, performs
+Pandera and cross-table validation, creates the batch, manages the audit
+lifecycle, and invokes the database loader. It does not contain SQL publication
+rules; those remain testable inside the loader.</p>
+<h2 id="the-three-publication-strategies">The three publication strategies</h2>
+<h3 id="upsert">UPSERT</h3>
+<p>Customers, orders, order items, payments, products, and sellers have reliable
+business keys. New keys are inserted. Existing keys are updated only when the
+record hash changed. Records absent from a delta batch remain in the target.</p>
+<p>This supports late corrections without interpreting absence as deletion.</p>
+<h3 id="append-and-deduplicate">Append and deduplicate</h3>
+<p>Reviews lack a sufficiently reliable source key, so the complete record hash
+acts as technical identity. New hashes are appended and existing hashes are
+ignored. An exact retry therefore creates no duplicate review.</p>
+<p>This policy does not claim that two distinct review versions represent an
+update; both can remain as source observations, and dbt selects the analytical
+review version deterministically downstream.</p>
+<h3 id="snapshot-replacement">Snapshot replacement</h3>
+<p>Geolocation and category translation are reference snapshots. Their staging
+contents replace the target contents with transactional <code>TRUNCATE + INSERT</code>.
+The table itself is not dropped, so its database identity and downstream
+dependencies remain stable.</p>
+<h2 id="why-staging-is-necessary">Why staging is necessary</h2>
+<p>Publishing one table immediately after reading it could leave a mixed state:
+new customers but old orders, for example. Here, all <code>COPY</code> operations finish
+before publication begins, and every publication occurs in one transaction.</p>
+<p>If table nine fails, changes planned for tables one through eight are rolled
+back. The previous coherent raw dataset remains visible.</p>
+<h2 id="what-idempotency-means-here">What idempotency means here</h2>
+<p>Safe re-execution depends on strategy:</p>
+<ul>
+<li>unchanged UPSERT rows are no-ops because their record hashes match;</li>
+<li>append-managed rows conflict on <code>_record_hash</code> and are ignored;</li>
+<li>snapshot tables are replaced with the same content;</li>
+<li>every attempt still receives its own audit row.</li>
+</ul>
+<p>Idempotency means repeated input does not corrupt or duplicate business data.
+It does not mean executions become invisible: the audit ledger deliberately
+records every attempt.</p>
+<h2 id="current-deletion-boundary">Current deletion boundary</h2>
+<p>An incremental file that omits an order does not prove that the order was
+deleted. The loader therefore retains absent UPSERT records. A future source
+would need explicit tombstones or an intentionally declared complete-snapshot
+reconciliation process before deletions could be applied safely.</p>
+<h2 id="local-schema-compatibility">Local schema compatibility</h2>
+<p>The metadata columns changed the physical raw-table shape. A local raw schema
+created by the older snapshot-only loader should be recreated once before using
+this implementation. This is a development migration, not a command the loader
+should silently perform against an unknown environment.</p>
+<p>After that one-time reset, subsequent loads preserve target tables and are safe
+to rerun. Integration tests avoid this issue by creating isolated schemas for
+every test and dropping them afterward.</p>
+<h2 id="incremental-dbt-facts">Incremental dbt facts</h2>
+<p>The PostgreSQL loader incrementally maintains the raw layer, while dbt
+incrementally publishes the two fact tables.</p>
+<p>Each fact row contains <code>warehouse_updated_at</code>, calculated from the ingestion
+timestamps of every source record that can affect that row.</p>
+<p>During an incremental run, dbt compares each candidate row with the existing
+fact row having the same natural key:</p>
+<ul>
+<li>missing keys are inserted;</li>
+<li>keys with newer source lineage are updated;</li>
+<li>unchanged or older candidates are ignored.</li>
+</ul>
+<p><code>fct_orders</code> merges on <code>order_id</code>. <code>fct_order_items</code> merges on the composite
+key <code>(order_id, order_item_id)</code>.</p>
+<p>This supports late changes to historical orders because selection is based on
+source ingestion time rather than order purchase date.</p>
+<p>The current intermediate models are views, so PostgreSQL still evaluates their
+source queries during an incremental run. The optimization primarily reduces
+fact-table writes rather than guaranteeing that the warehouse scans only new
+raw records.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../../js/base.js"></script>
+        <script src="../../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

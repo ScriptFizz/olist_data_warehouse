@@ -15,5 +15,4 @@ bigquery:
     rollup: "olist_rollup"
     kpi: "olist_kpi"
     bi: "olist_bi"
-api:
-  exchange_rate_url: "https://open.er-api.com/v6/latest/BRL"
+

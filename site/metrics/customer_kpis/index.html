@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Customer KPIs - Olist Data Warehouse</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">Olist Data Warehouse</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Engineering</a>
+                                <ul class="dropdown-menu">
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">ETL</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../engineering/etl/" class="dropdown-item">Overview</a>
+</li>
+            
+<li>
+    <a href="../../engineering/etl/extract/" class="dropdown-item">Extraction</a>
+</li>
+            
+<li>
+    <a href="../../engineering/etl/transform/" class="dropdown-item">Transformation</a>
+</li>
+            
+<li>
+    <a href="../../engineering/etl/load/" class="dropdown-item">Loading</a>
+</li>
+            
+<li>
+    <a href="../../engineering/etl/postgres_ingestion/" class="dropdown-item">PostgreSQL ingestion</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">CLI</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../engineering/cli/extract_cli/" class="dropdown-item">Extract command</a>
+</li>
+            
+<li>
+    <a href="../../engineering/cli/transform_cli/" class="dropdown-item">Transform command</a>
+</li>
+            
+<li>
+    <a href="../../engineering/cli/load_cli/" class="dropdown-item">Load command</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Runtime</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../engineering/runtime/docker/" class="dropdown-item">Docker</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Orchestration</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../engineering/orchestration/kestra/" class="dropdown-item">Kestra</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Decisions</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../engineering/decisions/001-postgres-raw-loading-strategy/" class="dropdown-item">PostgreSQL raw loading</a>
+</li>
+            
+<li>
+    <a href="../../engineering/decisions/002-kestra-local-execution/" class="dropdown-item">Kestra local execution</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Metrics</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">Customer KPIs</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../../engineering/decisions/002-kestra-local-execution/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#customer-kpis" class="nav-link">Customer KPIs</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#customer-grain" class="nav-link">Customer grain</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#metrics" class="nav-link">Metrics</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="customer-kpis">Customer KPIs</h1>
+<p>This document defines customer-level KPIs used for analytics and BI.
+All metrics are computed at <strong>customer grain</strong> and evaluated <strong>as of snapshot date</strong>.</p>
+<hr />
+<h2 id="customer-grain">Customer grain</h2>
+<p>One row per <code>customer_unique_id</code> per <code>snapshot_date</code>.</p>
+<hr />
+<h2 id="metrics">Metrics</h2>
+<h3 id="recency-recency_days">Recency (recency_days)</h3>
+<p><strong>Definition</strong>
+Number of days since customer's most recent completed purchase.</p>
+<p><strong>Formula</strong></p>
+<pre><code class="language-sql">DATE_DIFF(snapshot_date, last_purchase_date, DAY)
+</code></pre>
+<h3 id="frequency">Frequency</h3>
+<p><strong>Definition</strong>
+Total number of distinct orders place by the customer.</p>
+<p><strong>Formula</strong></p>
+<pre><code class="language-sql">COUNT(DISTINCT order_id)
+</code></pre>
+<h3 id="monetary-monetary_value">Monetary (monetary_value)</h3>
+<p><strong>Definition</strong>
+Total revenue generated by the customer.</p>
+<p><strong>Formula</strong></p>
+<pre><code class="language-sql">SUM(total_order_value)
+</code></pre>
+<h3 id="is_inactive">is_inactive</h3>
+<p><strong>Definition</strong>
+Flag indicating wether the customer is inactive based on recency.</p>
+<p><strong>Formula</strong></p>
+<pre><code class="language-sql">recency_days &gt; inactivity_threshold days
+</code></pre>
+<p><strong>Interpretation</strong>
+TRUE=inactive, FALSE=active</p>
+<h3 id="monetary-segment-monetary_segment">Monetary Segment (monetary_segment)</h3>
+<p><strong>Definition</strong>
+Customer value tier based on total spending.</p>
+<p><strong>Rules</strong>
+&lt; 100: Low value
+100-500: Mid valud</p>
+<blockquote>
+<p>500: High Value</p>
+</blockquote>
+<h3 id="behavior-segment-behavior_segment">Behavior Segment (behavior_segment)</h3>
+<p><strong>Definition</strong>
+Behavioral classification based on purchasing pattern.</p>
+<p><strong>Priority Logic</strong>
+1. High-ticket planner
+2. Impulse buyer
+3. Freight-sensitive
+4. Multi-item shopper
+5. Standard buyer</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

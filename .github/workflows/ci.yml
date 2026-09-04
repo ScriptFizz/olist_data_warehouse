@@ -1,0 +1,163 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Static checks and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # dbt parse loads the PostgreSQL profile but does not connect.
+      POSTGRES_PASSWORD: ci-placeholder
+
+      # Values required for rendering compose.yaml.
+      KESTRA_DB_PASSWORD: ci-kestra-database-password
+      KESTRA_USERNAME: admin@localhost
+      KESTRA_PASSWORD: ci-kestra-admin-password
+      KESTRA_POSTGRES_PASSWORD_BASE64: Y2ktcGFzc3dvcmQ=
+      OLIST_PROJECT_DIR: ${{ github.workspace }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.9"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python
+        run: uv python install 3.11.15
+
+      - name: Verify dependency lock
+        run: uv lock --check
+
+      - name: Install development dependencies
+        run: uv sync --locked --group dev --group docs
+
+      - name: Run Ruff
+        run: uv run ruff check src tests
+
+      - name: Run mypy
+        run: uv run mypy src tests
+
+      - name: Run unit tests
+        run: uv run pytest -m "not postgres"
+
+      - name: Parse dbt project
+        run: >
+          uv run dbt parse
+          --project-dir dbt
+          --profiles-dir dbt
+          --target postgres_dev
+
+      - name: Build documentation
+        run: uv run mkdocs build --strict
+
+      - name: Validate shell script syntax
+        run: |
+          bash -n scripts/container_smoke_test.sh
+          bash -n scripts/deploy_kestra_flows.sh
+
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+
+      - name: Build Python package
+        run: uv build
+
+  postgres-integration:
+    name: PostgreSQL and dbt integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: olist
+          POSTGRES_USER: olist
+          POSTGRES_PASSWORD: ci-postgres-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U olist -d olist"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      RUN_POSTGRES_TESTS: "1"
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: olist
+      POSTGRES_USER: olist
+      POSTGRES_PASSWORD: ci-postgres-password
+      POSTGRES_SCHEMA: raw
+      POSTGRES_AUDIT_SCHEMA: pipeline_metadata
+      DBT_TARGET: postgres_dev
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.9"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python
+        run: uv python install 3.11.15
+
+      - name: Install test and dbt dependencies
+        run: uv sync --locked --group dev
+
+      - name: Run PostgreSQL integration tests
+        run: uv run pytest -m postgres -v
+
+  container:
+    name: Build application container
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Build pipeline image
+        run: >
+          docker build
+          --tag olist-data-warehouse-pipeline:ci
+          .
+
+      - name: Verify installed Python package
+        run: >
+          docker run
+          --rm
+          olist-data-warehouse-pipeline:ci
+          python -c
+          "import olist_dw; print(olist_dw.__file__)"
+
+      - name: Verify dbt installation
+        run: >
+          docker run
+          --rm
+          olist-data-warehouse-pipeline:ci
+          dbt --version

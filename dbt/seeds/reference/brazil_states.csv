@@ -1,0 +1,28 @@
+state_code,state_name,state_iso_code
+AC,Acre,BR-AC
+AL,Alagoas,BR-AL
+AP,Amapá,BR-AP
+AM,Amazonas,BR-AM
+BA,Bahia,BR-BA
+CE,Ceará,BR-CE
+DF,Distrito Federal,BR-DF
+ES,Espírito Santo,BR-ES
+GO,Goiás,BR-GO
+MA,Maranhão,BR-MA
+MT,Mato Grosso,BR-MT
+MS,Mato Grosso do Sul,BR-MS
+MG,Minas Gerais,BR-MG
+PA,Pará,BR-PA
+PB,Paraíba,BR-PB
+PR,Paraná,BR-PR
+PE,Pernambuco,BR-PE
+PI,Piauí,BR-PI
+RJ,Rio de Janeiro,BR-RJ
+RN,Rio Grande do Norte,BR-RN
+RS,Rio Grande do Sul,BR-RS
+RO,Rondônia,BR-RO
+RR,Roraima,BR-RR
+SC,Santa Catarina,BR-SC
+SP,São Paulo,BR-SP
+SE,Sergipe,BR-SE
+TO,Tocantins,BR-TO

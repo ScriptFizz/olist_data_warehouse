@@ -1,0 +1,154 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      Customer/address records at one row per customer_id. The
+      customer_unique_id identifies a buyer and may occur multiple times.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: customer_id
+        data_type: text
+        data_tests: [not_null, unique]
+
+      - name: customer_unique_id
+        data_type: text
+        data_tests: [not_null]
+
+      - name: customer_zip_code_prefix
+        data_type: text
+
+      - name: customer_city
+        data_type: text
+        data_tests: [not_null]
+
+      - name: customer_state_code
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('brazil_states')
+                field: state_code
+
+      - name: customer_state_name
+        data_type: text
+        data_tests: [not_null]
+
+      - name: customer_state_iso_code
+        data_type: text
+        data_tests: [not_null]
+
+      - name: geolocation_city
+        data_type: text
+
+      - name: geolocation_state_code
+        data_type: text
+
+      - name: latitude
+        data_type: double precision
+
+      - name: longitude
+        data_type: double precision
+
+      - name: has_geolocation_match
+        data_type: boolean
+        data_tests: [not_null]
+
+  - name: dim_sellers
+    description: Seller records at one row per seller_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: seller_id
+        data_type: text
+        data_tests: [not_null, unique]
+
+      - name: seller_zip_code_prefix
+        data_type: text
+        data_tests: [not_null]
+
+      - name: seller_city
+        data_type: text
+        data_tests: [not_null]
+
+      - name: seller_state_code
+        data_type: text
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('brazil_states')
+                field: state_code
+
+      - name: seller_state_name
+        data_type: text
+        data_tests: [not_null]
+
+      - name: seller_state_iso_code
+        data_type: text
+        data_tests: [not_null]
+
+      - name: geolocation_city
+        data_type: text
+
+      - name: geolocation_state_code
+        data_type: text
+
+      - name: latitude
+        data_type: double precision
+
+      - name: longitude
+        data_type: double precision
+
+      - name: has_geolocation_match
+        data_type: boolean
+        data_tests: [not_null]
+
+  - name: dim_products
+    description: Product attributes at one row per product_id.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: product_id
+        data_type: text
+        data_tests: [not_null, unique]
+
+      - name: product_category_name
+        data_type: text
+        data_tests: [not_null]
+
+      - name: product_category_name_portuguese
+        data_type: text
+
+      - name: product_category_name_english
+        data_type: text
+
+      - name: has_english_translation
+        data_type: boolean
+        data_tests: [not_null]
+
+      - name: product_name_length
+        data_type: bigint
+
+      - name: product_description_length
+        data_type: bigint
+
+      - name: product_photos_quantity
+        data_type: bigint
+
+      - name: product_weight_g
+        data_type: bigint
+
+      - name: product_length_cm
+        data_type: bigint
+
+      - name: product_height_cm
+        data_type: bigint
+
+      - name: product_width_cm
+        data_type: bigint

@@ -1,0 +1,84 @@
+import logging
+from pathlib import Path
+from typing import Annotated
+
+import typer
+from google.cloud import bigquery
+
+from olist_dw.config.logconfig import setup_logging
+from olist_dw.etl.utils.utils_methods import load_params
+
+setup_logging()
+logger = logging.getLogger(__name__)
+
+app = typer.Typer()
+
+
+@app.command()
+def load_layers(
+    project_id: Annotated[
+        str | None, typer.Option(help="ID of the bigquery project.")
+    ] = None,
+    datasets: Annotated[
+        dict[str, str] | None, typer.Option(help="ID of the dataset to use for views.")
+    ] = None,
+    sql_dir: Annotated[
+        str | None, typer.Option(help="path pointing to the directory with sql files.")
+    ] = None,
+) -> None:
+    """
+    Create views in the analytic database, defining the business logic.
+
+    Args:
+    project_id (str): ID of the bigquery project.
+    datasets (dict[str, str]): Name of the datasets to use for creating and storing tables/views.
+    sql_dir (str): path pointing to the directory with sql files.
+    """
+
+    params = load_params()
+    project_id = project_id or params["bigquery"]["project_id"]
+    datasets = datasets or params["bigquery"]["datasets"]
+    resolved_sql_dir = Path(sql_dir or params["paths"]["sql_dir"])
+
+    replacements = {
+        "{{ PROJECT_ID }}": project_id,
+        "{{ RAW_DATASET_ID }}": datasets["raw"],
+        "{{ CORE_DATASET_ID }}": datasets["core"],
+        "{{ ROLLUP_DATASET_ID }}": datasets["rollup"],
+        "{{ KPI_DATASET_ID }}": datasets["kpi"],
+        "{{ BI_DATASET_ID }}": datasets["bi"],
+    }
+
+    client = bigquery.Client(project=project_id)
+
+    for layer in ["bi"]:  # ["core", "rollup", "kpi", "bi"]:
+        typer.echo(f"Storing data to {layer} dataset...")
+        layer_path = resolved_sql_dir / layer
+
+        if not layer_path.exists():
+            raise FileNotFoundError(f"Missing SQL layer directory: {layer_path}")
+
+        has_subdirectories = any(subdir.is_dir() for subdir in layer_path.iterdir())
+
+        if has_subdirectories:
+            sql_files = layer_path.glob("**/*.sql")
+        else:
+            sql_files = layer_path.glob("*.sql")
+
+        for sql_file in sorted(sql_files):
+            print("QUERY NAME: ", sql_file.name)
+            with open(sql_file) as f:
+                query = f.read()
+
+                for key, value in replacements.items():
+                    query = query.replace(key, value)
+
+                job = client.query(query)
+                job.result()
+
+                logger.info(f"Loaded {sql_file.name} successfully.")
+        logger.info(f"{layer} dataset created successfully")
+
+
+if __name__ == "__main__":
+    load_layers()

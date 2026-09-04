@@ -1,0 +1,2 @@
+review_id,order_id,score,title,message,creation_date,answer_ts
+review-1,order-1,5,Excellent,Delivered on time,2017-10-11 00:00:00,2017-10-12 09:00:00

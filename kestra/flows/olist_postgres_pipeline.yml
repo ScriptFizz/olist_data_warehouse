@@ -1,0 +1,165 @@
+id: olist_postgres_pipeline
+namespace: olist.pipeline
+
+description: |
+  Runs the local Olist batch pipeline using the same immutable application
+  image and CLI commands available to developers. Kaggle extraction is
+  optional because the source dataset is static and routine reruns should not
+  depend on an external download.
+
+inputs:
+  - id: run_extraction
+    type: BOOLEAN
+    defaults: false
+    description: Download and replace the local raw CSV files before processing.
+
+concurrency:
+  limit: 1
+  behavior: QUEUE
+
+tasks:
+  - id: check_postgres
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: olist-data-warehouse-pipeline:local
+    pullPolicy: NEVER
+    networkMode: olist-data-warehouse_default
+    env:
+      POSTGRES_HOST: "{{ envs.postgres_host }}"
+      POSTGRES_PORT: "{{ envs.postgres_port }}"
+      POSTGRES_DB: "{{ envs.postgres_db }}"
+      POSTGRES_USER: "{{ envs.postgres_user }}"
+      POSTGRES_PASSWORD: "{{ secret('POSTGRES_PASSWORD') }}"
+      POSTGRES_SCHEMA: "{{ envs.postgres_schema }}"
+      POSTGRES_AUDIT_SCHEMA: "{{ envs.postgres_audit_schema }}"
+    commands:
+      - olist-check-postgres
+    timeout: PT2M
+    retry:
+      type: constant
+      interval: PT5S
+      maxAttempts: 3
+      maxDuration: PT1M
+      warningOnRetry: true
+
+  - id: optional_extraction
+    type: io.kestra.plugin.core.flow.If
+    condition: "{{ inputs.run_extraction }}"
+    then:
+      - id: extract_raw_data
+        type: io.kestra.plugin.docker.cli.Run
+        containerImage: olist-data-warehouse-pipeline:local
+        pullPolicy: NEVER
+        user: "{{ envs.local_uid }}:{{ envs.local_gid }}"
+        env:
+          KAGGLE_USERNAME: "{{ envs.kaggle_username }}"
+          KAGGLE_KEY: "{{ secret('KAGGLE_KEY') }}"
+          OLIST_PROJECT_ROOT: /app
+          OLIST_LOG_DIR: /app/logs
+        volumes:
+          - "{{ envs.olist_project_dir }}/data:/app/data"
+          - "{{ envs.olist_project_dir }}/logs:/app/logs"
+          - "{{ envs.olist_project_dir }}/settings.yaml:/app/settings.yaml:ro"
+        commands:
+          - olist-extract
+          - --out-dir
+          - /app/data/raw
+        timeout: PT20M
+        retry:
+          type: exponential
+          interval: PT5S
+          maxInterval: PT30S
+          maxAttempts: 3
+          maxDuration: PT2M
+          warningOnRetry: true
+
+  - id: transform_and_validate
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: olist-data-warehouse-pipeline:local
+    pullPolicy: NEVER
+    user: "{{ envs.local_uid }}:{{ envs.local_gid }}"
+    env:
+      OLIST_PROJECT_ROOT: /app
+      OLIST_LOG_DIR: /app/logs
+    volumes:
+      - "{{ envs.olist_project_dir }}/data:/app/data"
+      - "{{ envs.olist_project_dir }}/logs:/app/logs"
+      - "{{ envs.olist_project_dir }}/settings.yaml:/app/settings.yaml:ro"
+    commands:
+      - olist-transform
+      - --raw-data-dir
+      - /app/data/raw
+      - --processed-data-dir
+      - /app/data/processed
+    timeout: PT15M
+
+  - id: publish_postgres_raw
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: olist-data-warehouse-pipeline:local
+    pullPolicy: NEVER
+    networkMode: olist-data-warehouse_default
+    user: "{{ envs.local_uid }}:{{ envs.local_gid }}"
+    env:
+      POSTGRES_HOST: "{{ envs.postgres_host }}"
+      POSTGRES_PORT: "{{ envs.postgres_port }}"
+      POSTGRES_DB: "{{ envs.postgres_db }}"
+      POSTGRES_USER: "{{ envs.postgres_user }}"
+      POSTGRES_PASSWORD: "{{ secret('POSTGRES_PASSWORD') }}"
+      POSTGRES_SCHEMA: "{{ envs.postgres_schema }}"
+      POSTGRES_AUDIT_SCHEMA: "{{ envs.postgres_audit_schema }}"
+      OLIST_PROJECT_ROOT: /app
+      OLIST_LOG_DIR: /app/logs
+    volumes:
+      - "{{ envs.olist_project_dir }}/data:/app/data"
+      - "{{ envs.olist_project_dir }}/logs:/app/logs"
+      - "{{ envs.olist_project_dir }}/settings.yaml:/app/settings.yaml:ro"
+    commands:
+      - olist-load-postgres
+      - --processed-dir
+      - /app/data/processed
+    timeout: PT15M
+
+  - id: build_analytics_models
+    type: io.kestra.plugin.docker.cli.Run
+    containerImage: olist-data-warehouse-pipeline:local
+    pullPolicy: NEVER
+    networkMode: olist-data-warehouse_default
+    user: "{{ envs.local_uid }}:{{ envs.local_gid }}"
+    env:
+      POSTGRES_HOST: "{{ envs.postgres_host }}"
+      POSTGRES_PORT: "{{ envs.postgres_port }}"
+      POSTGRES_DB: "{{ envs.postgres_db }}"
+      POSTGRES_USER: "{{ envs.postgres_user }}"
+      POSTGRES_PASSWORD: "{{ secret('POSTGRES_PASSWORD') }}"
+      DBT_TARGET: postgres_dev
+      DBT_RAW_DATABASE: "{{ envs.postgres_db }}"
+      DBT_RAW_SCHEMA: "{{ envs.postgres_schema }}"
+      DBT_POSTGRES_SCHEMA: "{{ envs.dbt_postgres_schema }}"
+      OLIST_PROJECT_ROOT: /app
+      OLIST_LOG_DIR: /app/logs
+    volumes:
+      - "{{ envs.olist_project_dir }}/dbt:/app/dbt"
+      - "{{ envs.olist_project_dir }}/logs:/app/logs"
+    commands:
+      - dbt
+      - build
+      - --project-dir
+      - /app/dbt
+      - --profiles-dir
+      - /app/dbt
+      - --target
+      - postgres_dev
+    timeout: PT20M
+
+errors:
+  - id: report_pipeline_failure
+    type: io.kestra.plugin.core.log.Log
+    level: ERROR
+    message: >-
+      Olist pipeline execution {{ execution.id }} failed. Inspect the failed
+      task attempt before restarting or replaying the execution.
+
+finally:
+  - id: report_pipeline_completion
+    type: io.kestra.plugin.core.log.Log
+    message: >-
+      Olist pipeline execution {{ execution.id }} reached a terminal state.

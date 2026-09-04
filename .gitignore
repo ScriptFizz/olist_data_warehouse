@@ -6,7 +6,7 @@ __pycache__/
 
 # Environment / virtualenv
 .env
-poetry.lock
+.venv/
 
 # Data files
 data/raw/*
@@ -24,3 +24,10 @@ logs/*
 
 # metadata SQLs
 sql/metadata/
+
+
+# dbt generated artifacts
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml

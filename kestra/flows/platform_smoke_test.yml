@@ -1,0 +1,12 @@
+id: platform_smoke_test
+namespace: olist.system
+
+description: |
+  Verifies that the local Kestra control plane can discover and execute
+  repository-managed flows. It does not run the Olist data pipeline.
+
+tasks:
+  - id: report_runtime_ready
+    type: io.kestra.plugin.core.log.Log
+    message: >-
+      Kestra is ready. Execution {{ execution.id }} was started manually.

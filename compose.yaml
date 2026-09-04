@@ -1,0 +1,130 @@
+name: olist-data-warehouse
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-olist}
+      POSTGRES_USER: ${POSTGRES_USER:-olist}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: 
+        [
+          "CMD-SHELL", 
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\"",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  pipeline:
+    image: olist-data-warehouse-pipeline:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    profiles:
+      - tools
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+    environment:
+      KAGGLE_USERNAME: ${KAGGLE_USERNAME:-}
+      KAGGLE_KEY: ${KAGGLE_KEY:-}
+
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-olist}
+      POSTGRES_USER: ${POSTGRES_USER:-olist}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-raw}
+      POSTGRES_AUDIT_SCHEMA: ${POSTGRES_AUDIT_SCHEMA:-pipeline_metadata}
+
+      DBT_TARGET: postgres_dev
+      DBT_RAW_DATABASE: ${POSTGRES_DB:-olist}
+      DBT_RAW_SCHEMA: ${POSTGRES_SCHEMA:-raw}
+      DBT_POSTGRES_SCHEMA: ${DBT_POSTGRES_SCHEMA:-dbt_dev}
+      OLIST_LOG_DIR: /app/logs
+
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+
+    volumes:
+      - ./data:/app/data 
+      - ./dbt:/app/dbt 
+      - ./logs:/app/logs
+      - ./settings.yaml:/app/settings.yaml:ro
+    
+    command:
+      - olist-check-postgres
+  
+  kestra-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kestra
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: ${KESTRA_DB_PASSWORD:?KESTRA_DB_PASSWORD must be set}
+    volumes:
+      - kestra_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\"",
+      ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  kestra:
+    image: kestra/kestra:v1.3.37
+    user: root
+    command:
+      - server
+      - standalone
+      - --config
+      - /etc/kestra/application.yml
+    depends_on:
+      kestra-postgres:
+        condition: service_healthy
+    environment:
+      KESTRA_DB_PASSWORD: ${KESTRA_DB_PASSWORD:?KESTRA_DB_PASSWORD must be set}
+      OLIST_KESTRA_USERNAME: ${KESTRA_USERNAME:?KESTRA_USERNAME must be set}
+      OLIST_KESTRA_PASSWORD: ${KESTRA_PASSWORD:?KESTRA_PASSWORD must be set}
+      ENV_POSTGRES_HOST: postgres
+      ENV_POSTGRES_PORT: "5432"
+      ENV_POSTGRES_DB: ${POSTGRES_DB:-olist}
+      ENV_POSTGRES_USER: ${POSTGRES_USER:-olist}
+      ENV_POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-raw}
+      ENV_POSTGRES_AUDIT_SCHEMA: ${POSTGRES_AUDIT_SCHEMA:-pipeline_metadata}
+      ENV_DBT_POSTGRES_SCHEMA: ${DBT_POSTGRES_SCHEMA:-dbt_dev}
+      ENV_LOCAL_UID: ${LOCAL_UID:-1000}
+      ENV_LOCAL_GID: ${LOCAL_GID:-1000}
+      ENV_OLIST_PROJECT_DIR: ${OLIST_PROJECT_DIR:?OLIST_PROJECT_DIR must be set to the absolute repository path}
+      ENV_KAGGLE_USERNAME: ${KAGGLE_USERNAME:-}
+
+      SECRET_POSTGRES_PASSWORD: ${KESTRA_POSTGRES_PASSWORD_BASE64:?KESTRA_POSTGRES_PASSWORD_BASE64 must be set}
+      SECRET_KAGGLE_KEY: ${KESTRA_KAGGLE_KEY_BASE64:-}
+    ports:
+      - "127.0.0.1:${KESTRA_PORT:-8080}:8080"
+    volumes:
+      - ./kestra/config/application.yml:/etc/kestra/application.yml:ro
+      - ./kestra/flows:/app/flows:ro
+      - kestra_storage:/app/storage
+      - kestra_working_directory:/tmp/kestra-wd
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  kestra_postgres_data:
+  kestra_storage:
+  kestra_working_directory:
