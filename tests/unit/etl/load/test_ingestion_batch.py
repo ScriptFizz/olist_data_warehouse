@@ -2,6 +2,7 @@ import pandas as pd
 
 from olist_dw.etl.load.ingestion_batch import (
     IngestionBatch,
+    attach_ingestion_metadata,
     compute_batch_fingerprint,
     compute_record_hashes,
 )
@@ -88,3 +89,20 @@ def test_batch_contains_counts_and_fingerprint() -> None:
     assert batch.input_row_count == 3
     assert len(batch.source_fingerprint) == 64
     assert batch.started_at.tzinfo is not None
+
+
+def test_ingestion_metadata_is_attached_without_mutating_source() -> None:
+    source = example_table()
+    batch = IngestionBatch.create(
+        source_name="processed_olist",
+        tables={"example": source},
+    )
+
+    result = attach_ingestion_metadata(source, batch)
+
+    assert list(source.columns) == ["identifier", "amount", "occurred_at"]
+    assert result["_batch_id"].tolist() == [str(batch.batch_id)] * len(source)
+    assert result["_ingested_at"].tolist() == [batch.started_at] * len(source)
+    assert result["_record_hash"].tolist() == (
+        compute_record_hashes(source).tolist()
+    )

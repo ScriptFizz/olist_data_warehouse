@@ -43,6 +43,18 @@ class IngestionBatch:
         )
 
 
+def attach_ingestion_metadata(
+    dataframe: pd.DataFrame,
+    batch: IngestionBatch,
+) -> pd.DataFrame:
+    """Return a copy with adapter-neutral ingestion lineage columns."""
+    result = dataframe.copy(deep=True)
+    result["_batch_id"] = str(batch.batch_id)
+    result["_ingested_at"] = batch.started_at
+    result["_record_hash"] = compute_record_hashes(dataframe)
+    return result
+
+
 def compute_record_hashes(
     dataframe: pd.DataFrame,
     *,

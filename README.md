@@ -1,181 +1,279 @@
-# Brazilian Ecommerce Data Warehouse & Analytics Project
+# Olist Analytics Engineering Warehouse
 
-End-to-end data warehouse and analytics project built on the Olist Brazilian Ecommerce dataset,  
-showcasing data ingestion, validation, transformation, modeling, and analytical insights  
-using modern data engineering and analytics tools.
+An end-to-end analytics engineering project built from the public Olist
+Brazilian e-commerce dataset. It turns source CSV files into tested dimensional
+models through a Python ingestion boundary, PostgreSQL or BigQuery, dbt, and a
+locally reproducible Kestra workflow.
 
-## Project Overview
+The project is designed around a practical question: how can a small commerce
+warehouse remain understandable while still handling validation, incremental
+updates, safe retries, and operational failures explicitly?
 
-This project implements a complete data pipeline and analytics workflow using the public Olist  
-Brazilian Ecommerce dataset.  
-The goal is to simulate a real-world data warehouse environment and demonstrate best practices 
-analytics modeling and exploratory data analysis.
+## What the project demonstrates
 
-The project covers: 
- - Data ingestion and validation 
- - Data transformation and warehouse modeling 
- - Analytics and BI layer creation 
- - Exploratory and business-oriented data analysis
+- source and cross-table data contracts with Pandera;
+- atomic, audited PostgreSQL publication using bulk `COPY` and staging tables;
+- table-specific upsert, append/deduplicate, and snapshot strategies;
+- dbt sources, staging models, intermediate models, dimensional marts,
+  contracts, generic tests, singular tests, and unit tests;
+- incremental fact maintenance that propagates late changes to old orders;
+- PostgreSQL for inexpensive local development and a retained BigQuery target;
+- containerized execution and Kestra orchestration of the same application
+  commands used manually;
+- CI split between fast checks, credential-free PostgreSQL integration tests,
+  and container construction.
 
-## Architecture and Data Flow
+## Architecture
 
-The project follows a layered data architecture: 
-
-1. **Raw Layer**
-  - Ingest CSV datasets from Kaggle and external exchange rate data 
-  - Schema validation using Pandera 
-
-2. **Processed Layer** 
-  - Cleaned and standardized datasets 
-  - Data quality checks enforced via Pandera schema 
-  - Stored locally and prepared for warehouse loading 
-
-3. **Data Warehouse (BigQuery)** 
-  - **Core Layer**: Fact and dimension tables 
-  - **Rollup Layer**: Additive aggregate facts 
-  - **KPI/Semantic Layer**: Non-additive metrics built on top of rollup
-  - **BI Layer**: Aggregated KPI views for reporting and dashboards 
-
-4. **Analytics & Visualization** 
-  - SQL-based analytics in BigQuery 
-  - Jupyter notebooks for exploratory analysis and visualization 
-
-## Tech Stack 
-
-**Data Engineering** 
- - Python (pandas)
- - Pandera (data validation)
- - BigQuery (data warehouse)
- - SQL (analytics and BI modeling)
- - Typer (CLI interface)
- - Poetry (dependency management) 
-
-**Analytics & Visualization** 
- - Jupyter Notebook
- - seaborn
- - matplotlib
-
-
-**Tooling & Quality** 
- - MKDocs (project documentation) 
- - Ruff, MyPy (linting and type checking) 
- - pre-commit
- - Logging and configuration management 
- 
-## Repository Structure 
-
-```text
-data/          # Raw and processed datasets
-src/           # ETL, validation, and CLI logic
-sql/           # Core, analytics, and BI SQL models
-notebooks/     # Exploratory and analytical notebooks
-DA_report      # PDF of Business Insights report on Looker Studio
-docs/          # Project documentation (MkDocs)
-logs/          # Application logs
-tests/         # Test scaffolding
+```mermaid
+flowchart LR
+    A[Kaggle Olist CSVs] --> B[Python extraction]
+    B --> C[Pandera source contracts]
+    C --> D[Python cleaning and cross-table validation]
+    D --> E[Validated processed CSVs]
+    E --> F[Transactional PostgreSQL loader]
+    E -. optional cloud path .-> G[BigQuery raw tables]
+    F --> H[(PostgreSQL raw tables)]
+    H --> I[dbt staging views]
+    G --> I
+    I --> J[dbt intermediate views]
+    J --> K[Dimensions and incremental facts]
+    K --> L[Analytics and BI consumers]
+    M[Kestra] -. orchestrates existing commands .-> B
+    M -.-> D
+    M -.-> F
+    M -.-> I
 ```
 
-## ETL Pipeline and CLI usage 
+Responsibilities are intentionally separated:
 
-The ETL pipeline is fully subscriptbale via a command-line interface built with Typer. 
+- **Python** owns file acquisition, programmatic validation, normalization,
+  batch identity, and physical raw-table publication.
+- **dbt** owns warehouse SQL, dependency management, model contracts,
+  dimensional modeling, and analytical quality rules.
+- **Kestra** owns task order, retries, timeouts, parameters, and execution logs;
+  it contains no business transformation logic.
 
-Typical workflow:
-1. Extract raw datasets and external exchange rates
-2. Validate schemas using Pandera 
-3. Transform data into processed datasets 
-4. Load data into BigQuery datasets 
+PostgreSQL is the supported local runtime. BigQuery remains an optional
+deployment target and is not required by normal development or CI.
 
-Example commands: 
+## Data flow and failure guarantees
+
+Each ingestion attempt validates all nine Olist datasets before database
+publication. It then assigns a batch UUID, ingestion timestamp, source
+fingerprint, and deterministic record hashes.
+
+The PostgreSQL loader copies every table into a uniquely named staging table
+and publishes the complete batch in one transaction. An advisory lock prevents
+overlapping writers to the same raw schema. If any table fails, PostgreSQL
+rolls back the full batch and the previously coherent raw layer remains
+available. A separately committed audit ledger records `running`, `succeeded`,
+or `failed` even when publication rolls back.
+
+Loading behavior follows source semantics:
+
+| Tables | Strategy | Safe rerun behavior |
+|---|---|---|
+| customers, orders, order items, payments, products, sellers | Upsert by business key | Inserts new rows; updates only changed hashes |
+| reviews | Append and deduplicate by record hash | Exact observations are not duplicated |
+| geolocation, category translation | Transactional snapshot replacement | Replaces the delivered reference snapshot without dropping the target table |
+
+Absence from an incremental file is not interpreted as deletion. Deletions
+would require explicit tombstones or a declared complete-snapshot
+reconciliation process.
+
+## Warehouse model
+
+```text
+raw sources
+  -> stg_customers, stg_orders, stg_order_items, ...
+      -> int_orders_enriched and reusable order/payment/review/geography models
+          -> dim_customers
+          -> dim_products
+          -> dim_sellers
+          -> fct_orders
+          -> fct_order_items
+```
+
+The marts use natural source keys because those keys are stable within this
+single-source warehouse and no cross-system identity resolution is needed.
+
+- `fct_orders`: one row per `order_id`; order lifecycle, delivery, payment,
+  item, and review measures.
+- `fct_order_items`: one row per `(order_id, order_item_id)`; additive item and
+  freight amounts with customer, product, and seller references.
+- `dim_customers`: one row per `customer_id`. `customer_unique_id` represents
+  the buyer identity and may occur more than once because Olist customer IDs
+  are order-address identities.
+- `dim_products`: one row per `product_id` with translated category attributes.
+- `dim_sellers`: one row per `seller_id` with normalized geography.
+
+Both facts are incremental `merge` models. Their `warehouse_updated_at`
+watermark is derived from every source row that can affect the fact, so a late
+correction to a historical order is eligible for update. Intermediate models
+are views, so this reduces fact writes but does not claim to eliminate all
+upstream scans.
+
+## Quick start with Docker
+
+Prerequisites: Docker with Compose v2 and Kaggle API credentials if the source
+files have not already been downloaded.
 
 ```bash
-python -m src.cli.extract_csv_cli 
-python -m src.cli.extract_rates_cli 
-python -m src.cli.transform_cli 
-python -m src.cli.load_bigquery_cli
-python -m src.cli.load_layers_cli
-``` 
+git clone <repository-url>
+cd olist_data_warehouse
+cp .env.example .env
+```
 
-## Data Availability 
+Set the passwords and credentials in `.env`. On Linux also set:
 
-Raw and processed data files are intentionally excluded from version control. 
+```dotenv
+LOCAL_UID=1000
+LOCAL_GID=1000
+OLIST_PROJECT_DIR=/absolute/path/to/olist_data_warehouse
+```
 
-The project is fully reproducible: 
- - Raw data can be downloaded from [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) 
- - Processed data is generated via the ETL pipeline 
- - Warehouse tables are built programmatically in BigQuery 
- 
-See `docs/engineering/etl` for details on the data ingestion process.
+Use `id -u` and `id -g` rather than assuming both IDs are `1000`.
 
-## Data Modeling
+Build the application image and start PostgreSQL:
 
-The BigQuery warehouse follows a layered dimensional modeling approach, progressing
-from source-aligned ingestion to additive aggregates and semantic KPIs optimized for BI
-and analytics use cases.
+```bash
+docker compose build pipeline
+docker compose up -d postgres
+```
 
-- **Raw Layer**
-  - Standardized ingestion tables with consistent data types and keys
-  - Preserves source-level grain and business meaning
-  - Serves as the foundation for dimensional modeling
+Run the pipeline manually:
 
-- **Core Layer**
-  - **Atomic fact tables** at the lowest business grain  
-    (e.g. orders, order_items, payments, reviews)
-  - **Conformed dimensions**  
-    (customers, sellers, products, dates, geography)
-  - Designed for reuse across downstream rollups and KPIs
+```bash
+docker compose run --rm --no-deps pipeline \
+  olist-extract --out-dir /app/data/raw
 
-- **Rollup Layer (Additive Aggregate Facts)**
-  - Aggregate fact tables containing **additive-only measures** (`sum`, `count`)
-  - Optimized for performance and reuse in KPI calculations
-  - Includes:
-    - Customer order rollups
-    - Seller performance rollups
-    - Product sales rollups
-    - Geographic demand and supply rollups
+docker compose run --rm --no-deps pipeline \
+  olist-transform \
+  --raw-data-dir /app/data/raw \
+  --processed-data-dir /app/data/processed
 
-- **KPI / Semantic Layer**
-  - Derived tables/views built on top of additive rollups
-  - Contains **non-additive metrics**, ratios, scores, and segmentation logic
-  - Includes:
-    - Customer RFM and behavioral KPIs
-    - Customer status and segmentation models
-    - Seller and product performance KPIs
-    - Daily business KPIs
-  - Designed as a stable semantic contract for BI and analytics consumers
+docker compose run --rm pipeline \
+  olist-load-postgres --processed-dir /app/data/processed
 
-- **BI / Presentation Layer**
-  - Final presentation-ready views for dashboards and reporting
-  - Minimal business logic; focuses on usability and consistency 
+docker compose run --rm pipeline \
+  dbt build \
+  --project-dir /app/dbt \
+  --profiles-dir /app/dbt \
+  --target postgres_dev
+```
 
-## Analysis & Key Insights 
+Or start Kestra, deploy the version-controlled flows, and run
+`olist.pipeline.olist_postgres_pipeline` from <http://localhost:8080>:
 
-Exploratory and business-oriented analyses are conducted in Jupyter notebook 
-using SQL queries against the BigQuery warehouse and Python visualizations. 
+```bash
+./scripts/deploy_kestra_flows.sh
+```
 
-Key insights include: 
+Routine executions should leave `run_extraction=false`; enable it only when
+the static Kaggle files need to be refreshed. The flow serializes concurrent
+runs because its tasks share local bind-mounted data directories.
 
- - Demand seasonality shows stronger response to promotion rather than holidays 
- - Delivery delays have a systematic negative impact on customer review scores 
- - Revenue is concentrated in a small number of personal and household care categories 
+## Local development without containers
 
-See: `notebooks/Brazilian_Ecommerce_Analysis.ipynb` 
+The project requires Python 3.11 and uses
+[uv](https://docs.astral.sh/uv/) for dependency and environment management.
 
-A summary of the analysis with key business insights is conducted on a Looker Studio 
-report, whose static PDF copy is available.  
+```bash
+uv python install 3.11.15
+uv sync --locked --group dev --group docs
+cp .env.example .env
+docker compose up -d postgres
+```
 
-See: `DA_report/Olist_Marketplace_Report.pdf`
+CLI commands can then be invoked with `uv run`, for example:
 
-## Documentation 
+```bash
+uv run olist-check-postgres
+uv run olist-transform --raw-data-dir data/raw --processed-data-dir data/processed
+uv run olist-load-postgres --processed-dir data/processed
+uv run dbt build --project-dir dbt --profiles-dir dbt --target postgres_dev
+```
 
-Technical documentation is available via MKDocs and covers: 
- - ETL pipeline design 
- - CLI usage 
- - Metrics definition 
+## Testing and CI
 
-See the `docs/` directory or build the documentation locally using MKDocs. 
+Run the credential-free checks:
 
-## Future improvements 
+```bash
+uv lock --check
+uv run ruff check src tests
+uv run mypy src tests
+uv run pytest -m "not postgres"
+uv run dbt parse --project-dir dbt --profiles-dir dbt --target postgres_dev
+uv run mkdocs build --strict
+```
 
- - Introduce orchestration (e.g. Airflow or Prefect) 
- - link to dashboarding layer (Looker Studio) 
- - Implement incremental loading strategies 
+Run database integration tests against the local PostgreSQL container:
+
+```bash
+RUN_POSTGRES_TESTS=1 uv run pytest -m postgres -v
+```
+
+Integration tests use isolated schemas and verify transactional rollback,
+idempotent CLI loading, durable audit state, table identity preservation, and
+late-update propagation through incremental dbt facts.
+
+GitHub Actions runs three independent jobs on pull requests: static and unit
+checks, PostgreSQL/dbt integration tests using an ephemeral service container,
+and an application-image build. Normal CI requires no BigQuery credentials and
+incurs no cloud warehouse cost.
+
+## Repository map
+
+```text
+src/olist_dw/       Python package: configuration, contracts, ETL, loaders, CLIs
+dbt/                dbt sources, staging/intermediate models, marts, tests, seeds
+kestra/             local Kestra configuration and version-controlled flows
+tests/              unit, PostgreSQL integration, CLI, and dbt integration tests
+scripts/            container smoke test and Kestra flow deployment helpers
+docs/               engineering guides and architecture decisions
+compose.yaml        PostgreSQL, disposable pipeline runtime, and Kestra services
+Dockerfile          reproducible Python and dbt application image
+notebooks/          exploratory analysis retained from the original project
+DA_report/          static copy of the original Looker Studio report
+```
+
+The former hand-ordered `sql/` transformation tree was retired. dbt is now the
+single warehouse transformation system, making dependencies, contracts, tests,
+and adapter behavior explicit.
+
+## Design decisions and limitations
+
+- The Olist files are static, but the loader models them as an initial snapshot
+  followed by possible delta batches so update and retry behavior is testable.
+- No SCD Type 2 dimension was added because the source does not provide a
+  trustworthy history of changing customer, product, or seller attributes.
+- A backfill is currently a deliberate replay of source batches followed by a
+  dbt rebuild; date-range backfills are not claimed because the source has no
+  extract partitions or reliable source update timestamp.
+- BigQuery adapter compatibility is retained, but credentialed BigQuery
+  integration tests are not run in normal CI. Its Python raw loader performs a
+  metadata-bearing full-snapshot bootstrap; PostgreSQL remains the implemented
+  path for incremental publication and a durable ingestion audit ledger.
+- Kestra uses the local Docker socket for a simple single-user portfolio
+  runtime. This grants broad host control and must be replaced by a restricted
+  worker or external execution platform before any shared deployment.
+- Kestra is not permanently scheduled because the source is a static public
+  dataset and the local control plane is not intended to run continuously.
+
+Detailed guides are in [`docs/`](docs/index.md), including the
+[PostgreSQL ingestion design](docs/engineering/etl/postgres_ingestion.md),
+[Docker workflow](docs/engineering/runtime/docker.md),
+[Kestra behavior](docs/engineering/orchestration/kestra.md), and the recorded
+[architecture decisions](docs/engineering/decisions/001-postgres-raw-loading-strategy.md).
+
+## Analytical output
+
+The original exploratory notebook and static Looker Studio report remain as
+examples of downstream consumption:
+
+- [`notebooks/Brazilian_Ecommerce_Analysis.ipynb`](notebooks/Brazilian_Ecommerce_Analysis.ipynb)
+- [`DA_report/Olist_Marketplace_Report.pdf`](DA_report/Olist_Marketplace_Report.pdf)
+
+They predate the current dbt mart layer and should be treated as historical
+analysis artifacts rather than the warehouse's executable semantic contract.
