@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,10 @@ class ConfigLoader:
         Returns:
             (Path): path of the project root directory.
         """
+        configured_root = os.getenv("OLIST_PROJECT_ROOT")
+        if configured_root:
+            return Path(configured_root).expanduser().resolve()
+
         return Path.cwd()
 
     def _load(self) -> dict[str, Any]:

@@ -15,6 +15,8 @@ nav:
           - Load command: engineering/cli/load_cli.md
       - Runtime:
           - Docker: engineering/runtime/docker.md
+      - Orchestration:
+          - Kestra: engineering/orchestration/kestra.md
       - Decisions:
           - PostgreSQL raw loading: engineering/decisions/001-postgres-raw-loading-strategy.md
           - Kestra local execution: engineering/decisions/002-kestra-local-execution.md
