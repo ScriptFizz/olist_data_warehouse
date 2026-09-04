@@ -218,6 +218,9 @@ models:
       Canonical order-grain model containing customer identity, lifecycle
       timestamps, delivery measures, item totals, payment totals, and the
       deterministically selected review. Exactly one row per order_id.
+      Delivery delay is a signed whole-day duration truncated toward zero,
+      while the late-delivery flag compares exact timestamps. A sub-day late
+      delivery can therefore have zero delay days and still be marked late.
     config:
       contract:
         enforced: true

@@ -31,6 +31,6 @@ where is_delivered <> (order_status = 'delivered')
        and is_late_delivery is not true
    )
    or (
-       delivery_delay_days <= 0
+       delivery_delay_days < 0
        and is_late_delivery is true
    )
